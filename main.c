@@ -1,6 +1,8 @@
 ﻿#include <windows.h>
 #include <stdio.h>
+#include "interface_function.h"
 
+/*
 #define MAX_ROWS 10       // 최대 행 수
 #define BTN_ADD 100       // "추가" 버튼 ID
 #define BTN_SAVE 101      // "저장" 버튼 ID
@@ -10,16 +12,19 @@ HWND hEdit[MAX_ROWS][4];  // 각 행의 강의명, 요일, 시작시간, 끝시�
 HWND hButtonAdd, hButtonSave; // "추가" 및 "저장" 버튼 핸들
 HWND hButtonRemove[MAX_ROWS]; // "제거" 버튼 핸들
 int rowCount = 0;         // 현재 추가된 행 수
+*/
 
+/*
 // 함수 선언
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM); // 창 프로시저
 void AddRow(HWND);                                   // 새로운 행 추가
 void SaveData();                                     // 데이터 저장
 void RemoveRow(int, HWND);                           // 행 삭제
 void UpdateRowPositions();                           // 행 재배치
+*/
 
 // 프로그램 진입점
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nCmdShow) {
     // 윈도우 클래스 등록
     WNDCLASS wc = { 0 };
     wc.lpfnWndProc = WndProc;              // 창 프로시저 설정
@@ -37,6 +42,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     // 윈도우 표시
     ShowWindow(hWnd, nCmdShow);
     UpdateWindow(hWnd);
+    AddRow(hWnd);
 
     // 메시지 루프
     MSG msg;
@@ -47,6 +53,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     return (int)msg.wParam; // 프로그램 종료
 }
 
+/*
 // 창 프로시저: 윈도우 메시지 처리
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
     switch (message) {
@@ -78,7 +85,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
     }
     return DefWindowProc(hWnd, message, wParam, lParam); // 기본 메시지 처리
 }
+*/
 
+/*
 // 새로운 행 추가 함수
 void AddRow(HWND hWnd) {
     //최대 행 개수를 넘을시 오류메세지 출력
@@ -188,7 +197,7 @@ void SaveData() {
 
     MessageBox(NULL, L"데이터가 save.txt 파일에 저장되었습니다.", L"알림", MB_OK);
 }
-
+*/
 
 /*
 WinMain 함수:
