@@ -45,8 +45,8 @@ void showWindow2(HINSTANCE);
 void closeWindow2(void);
 
 // 스케줄 화면 이름
-#define SCHEWIN_CLASSNAME "SCHEDULE_VIEWER"
-#define SCHEWIN_TITLE "Timetable Maker - Viewer"
+#define SCHEWIN_CLASSNAME L"SCHEDULE_VIEWER"
+#define SCHEWIN_TITLE L"Timetable Maker - 뷰어"
 
 // 화면 크기 옵션
 // 초기 설정은 안드로이드 위젯 느낌으로 3:4 or 9:16 or 9:20

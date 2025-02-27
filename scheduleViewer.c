@@ -50,13 +50,13 @@ void showWindow2(HINSTANCE hInst){
 
 
 static bool isWindowAlreadyExists(HINSTANCE hInst){
-    WNDCLASS t_wc;
-    return (bool)GetClassInfo(hInst, SCHEWIN_CLASSNAME, &t_wc);
+    WNDCLASSW t_wc;
+    return (bool)GetClassInfoW(hInst, SCHEWIN_CLASSNAME, &t_wc);
 }
 
 static void registerWindow(HINSTANCE hInst){
     // assert isWindowAlreadyExists(hInst) == false
-    WNDCLASS wc = { 0 };
+    WNDCLASSW wc = { 0 };
     wc.lpfnWndProc = schedule_viewer_procedure;
     wc.hInstance = hInst;
     wc.lpszClassName = SCHEWIN_CLASSNAME;
@@ -66,7 +66,7 @@ static void registerWindow(HINSTANCE hInst){
     wc.hbrBackground = SCHEWIN_BGCOLOR;
     // wc.lpszMenuName = NULL;
 
-    RegisterClassA(&wc);
+    RegisterClassW(&wc);
 }
 
 static HWND createOuterFrame(HINSTANCE hInst){
@@ -74,7 +74,7 @@ static HWND createOuterFrame(HINSTANCE hInst){
     int screenWidth = GetSystemMetrics(SM_CXSCREEN);
     // int screenHeight = GetSystemMetrics(SM_CYSCREEN);
 
-    return CreateWindowA(
+    return CreateWindowW(
         SCHEWIN_CLASSNAME, SCHEWIN_TITLE,
         SCHEWIN_STYLE,
         screenWidth - SCHEWIN_WIDTH - 1, 0,

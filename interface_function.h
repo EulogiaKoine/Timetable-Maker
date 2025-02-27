@@ -1,31 +1,31 @@
 #pragma once
 
-//º¯¼ö¼±¾ğ
-#define MAX_ROWS 10       // ÃÖ´ë Çà ¼ö
-#define BTN_ADD 100       // "Ãß°¡" ¹öÆ° ID
-#define BTN_SAVE 101      // "ÀúÀå" ¹öÆ° ID
-#define BTN_REMOVE 200    // "Á¦°Å" ¹öÆ° ID
+//ë³€ìˆ˜ì„ ì–¸
+#define MAX_ROWS 10       // ìµœëŒ€ í–‰ ìˆ˜
+#define BTN_ADD 100       // "ì¶”ê°€" ë²„íŠ¼ ID
+#define BTN_SAVE 101      // "ì €ì¥" ë²„íŠ¼ ID
+#define BTN_REMOVE 200    // "ì œê±°" ë²„íŠ¼ ID
 
-HWND hEdit[MAX_ROWS][4];  // °¢ ÇàÀÇ °­ÀÇ¸í, ¿äÀÏ, ½ÃÀÛ½Ã°£, ³¡½Ã°£ ÀÔ·Â ÇÊµå ÇÚµé
-HWND hButtonAdd, hButtonSave; // "Ãß°¡" ¹× "ÀúÀå" ¹öÆ° ÇÚµé
-HWND hButtonRemove[MAX_ROWS]; // "Á¦°Å" ¹öÆ° ÇÚµé
-int rowCount;         // ÇöÀç Ãß°¡µÈ Çà ¼ö
+HWND hEdit[MAX_ROWS][4];  // ê° í–‰ì˜ ê°•ì˜ëª…, ìš”ì¼, ì‹œì‘ì‹œê°„, ëì‹œê°„ ì…ë ¥ í•„ë“œ í•¸ë“¤
+HWND hButtonAdd, hButtonSave; // "ì¶”ê°€" ë° "ì €ì¥" ë²„íŠ¼ í•¸ë“¤
+HWND hButtonRemove[MAX_ROWS]; // "ì œê±°" ë²„íŠ¼ í•¸ë“¤
+int rowCount;         // í˜„ì¬ ì¶”ê°€ëœ í–‰ ìˆ˜
 
-// °­ÀÇ Á¤º¸¸¦ ÀúÀåÇÏ´Â ±¸Á¶Ã¼
+// ê°•ì˜ ì •ë³´ë¥¼ ì €ì¥í•˜ëŠ” êµ¬ì¡°ì²´
 typedef struct {
-    char name[100];      // °­ÀÇ¸í
-    char day[10];        // ¿äÀÏ
-    char startTime[10];  // ½ÃÀÛ½Ã°£
-    char endTime[10];    // ³¡½Ã°£
+    char name[100];      // ê°•ì˜ëª…
+    char day[10];        // ìš”ì¼
+    char startTime[10];  // ì‹œì‘ì‹œê°„
+    char endTime[10];    // ëì‹œê°„
 } Course;
 
-Course courseData[MAX_ROWS]; // ÀÔ·ÂµÈ °­ÀÇ µ¥ÀÌÅÍ¸¦ ÀúÀåÇÒ ¹è¿­
+Course courseData[MAX_ROWS]; // ì…ë ¥ëœ ê°•ì˜ ë°ì´í„°ë¥¼ ì €ì¥í•  ë°°ì—´
 
-// ÇÔ¼ö ¼±¾ğ
-LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM); // Ã¢ ÇÁ·Î½ÃÀú
+// í•¨ìˆ˜ ì„ ì–¸
+LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM); // ì°½ í”„ë¡œì‹œì €
 int WINAPI showindow1(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nCmdShow);
-void AddRow(HWND);                                   // »õ·Î¿î Çà Ãß°¡
-void SaveData();                                     // µ¥ÀÌÅÍ ÀúÀå
-void RemoveRow(int, HWND);                           // Çà »èÁ¦
-void UpdateRowPositions();                           // Çà Àç¹èÄ¡
-void Struct_Saved_Data();							 // ±¸Á¶Ã¼¿¡ µ¥ÀÌÅÍ ÀúÀå
+void AddRow(HWND);                                   // ìƒˆë¡œìš´ í–‰ ì¶”ê°€
+void SaveData();                                     // ë°ì´í„° ì €ì¥
+void RemoveRow(int, HWND);                           // í–‰ ì‚­ì œ
+void UpdateRowPositions();                           // í–‰ ì¬ë°°ì¹˜
+void Struct_Saved_Data();							 // êµ¬ì¡°ì²´ì— ë°ì´í„° ì €ì¥

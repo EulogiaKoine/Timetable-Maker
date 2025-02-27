@@ -2,112 +2,112 @@
 #include <windows.h>
 #include "interface_function.h"
 
-extern int rowCount = 0;         // ÇöÀç Ãß°¡µÈ Çà ¼ö
+extern int rowCount = 0;         // í˜„ìž¬ ì¶”ê°€ëœ í–‰ ìˆ˜
 
-// ÇÁ·Î±×·¥ ÁøÀÔÁ¡
+// í”„ë¡œê·¸ëž¨ ì§„ìž…ì 
 int WINAPI showindow1(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nCmdShow) {
-    // À©µµ¿ì Å¬·¡½º µî·Ï
+    // ìœˆë„ìš° í´ëž˜ìŠ¤ ë“±ë¡
     WNDCLASS wc = { 0 };
-    wc.lpfnWndProc = WndProc;              // Ã¢ ÇÁ·Î½ÃÀú ¼³Á¤
-    wc.hInstance = hInstance;              // ÀÎ½ºÅÏ½º ÇÚµé
-    wc.lpszClassName = L"TimetableWindow";  // Å¬·¡½º ÀÌ¸§
-    wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1); // ¹è°æ»ö
-    wc.hCursor = LoadCursor(NULL, IDC_ARROW);      // Ä¿¼­ ¼³Á¤
-    RegisterClass(&wc); // Å¬·¡½º µî·Ï
+    wc.lpfnWndProc = WndProc;              // ì°½ í”„ë¡œì‹œì € ì„¤ì •
+    wc.hInstance = hInstance;              // ì¸ìŠ¤í„´ìŠ¤ í•¸ë“¤
+    wc.lpszClassName = L"TimetableWindow";  // í´ëž˜ìŠ¤ ì´ë¦„
+    wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1); // ë°°ê²½ìƒ‰
+    wc.hCursor = LoadCursor(NULL, IDC_ARROW);      // ì»¤ì„œ ì„¤ì •
+    RegisterClass(&wc); // í´ëž˜ìŠ¤ ë“±ë¡
 
-    // À©µµ¿ì »ý¼º
-    HWND hWnd = CreateWindow(L"TimetableWindow", L"½Ã°£Ç¥ »ý¼º±â", WS_OVERLAPPEDWINDOW,
+    // ìœˆë„ìš° ìƒì„±
+    HWND hWnd = CreateWindow(L"TimetableWindow", L"ì‹œê°„í‘œ ìƒì„±ê¸°", WS_OVERLAPPEDWINDOW,
         CW_USEDEFAULT, CW_USEDEFAULT, 500, 400,
         NULL, NULL, hInstance, NULL);
 
-    // À©µµ¿ì Ç¥½Ã
+    // ìœˆë„ìš° í‘œì‹œ
     ShowWindow(hWnd, nCmdShow);
     UpdateWindow(hWnd);
     AddRow(hWnd);
 
-    // ¸Þ½ÃÁö ·çÇÁ
+    // ë©”ì‹œì§€ ë£¨í”„
     MSG msg;
     while (GetMessage(&msg, NULL, 0, 0)) {
-        TranslateMessage(&msg); // Å°º¸µå ¸Þ½ÃÁö º¯È¯
-        DispatchMessage(&msg);  // ¸Þ½ÃÁö Ã³¸®
+        TranslateMessage(&msg); // í‚¤ë³´ë“œ ë©”ì‹œì§€ ë³€í™˜
+        DispatchMessage(&msg);  // ë©”ì‹œì§€ ì²˜ë¦¬
     }
-    return (int)msg.wParam; // ÇÁ·Î±×·¥ Á¾·á
+    return (int)msg.wParam; // í”„ë¡œê·¸ëž¨ ì¢…ë£Œ
 }
 
-// Ã¢ ÇÁ·Î½ÃÀú: À©µµ¿ì ¸Þ½ÃÁö Ã³¸®
+// ì°½ í”„ë¡œì‹œì €: ìœˆë„ìš° ë©”ì‹œì§€ ì²˜ë¦¬
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
     switch (message) {
-    case WM_CREATE: // À©µµ¿ì »ý¼º ½Ã È£Ãâ
-        // "°ú¸ñÃß°¡" ¹öÆ° »ý¼º
-        hButtonAdd = CreateWindow(L"BUTTON", L"°ú¸ñÃß°¡", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
+    case WM_CREATE: // ìœˆë„ìš° ìƒì„± ì‹œ í˜¸ì¶œ
+        // "ê³¼ëª©ì¶”ê°€" ë²„íŠ¼ ìƒì„±
+        hButtonAdd = CreateWindow(L"BUTTON", L"ê³¼ëª©ì¶”ê°€", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
             70, 320, 100, 30, hWnd, (HMENU)BTN_ADD, (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE), NULL);
-        // "ÀúÀå" ¹öÆ° »ý¼º
-        hButtonSave = CreateWindow(L"BUTTON", L"ÀúÀå", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
+        // "ì €ìž¥" ë²„íŠ¼ ìƒì„±
+        hButtonSave = CreateWindow(L"BUTTON", L"ì €ìž¥", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
             10, 320, 50, 30, hWnd, (HMENU)BTN_SAVE, (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE), NULL);
         break;
 
-    case WM_COMMAND: // ¹öÆ° Å¬¸¯ µî ¸í·É Ã³¸®
-        if (LOWORD(wParam) == BTN_ADD) { // "Ãß°¡" ¹öÆ° Å¬¸¯
-            AddRow(hWnd); // »õ·Î¿î Çà Ãß°¡
+    case WM_COMMAND: // ë²„íŠ¼ í´ë¦­ ë“± ëª…ë ¹ ì²˜ë¦¬
+        if (LOWORD(wParam) == BTN_ADD) { // "ì¶”ê°€" ë²„íŠ¼ í´ë¦­
+            AddRow(hWnd); // ìƒˆë¡œìš´ í–‰ ì¶”ê°€
         }
-        else if (LOWORD(wParam) == BTN_SAVE) { // "ÀúÀå" ¹öÆ° Å¬¸¯
-            SaveData(); // µ¥ÀÌÅÍ ÀúÀå
-            Struct_Saved_Data(); //µ¥ÀÌÅÍ ÀúÀå
+        else if (LOWORD(wParam) == BTN_SAVE) { // "ì €ìž¥" ë²„íŠ¼ í´ë¦­
+            SaveData(); // ë°ì´í„° ì €ìž¥
+            Struct_Saved_Data(); //ë°ì´í„° ì €ìž¥
         }
-        else if (LOWORD(wParam) >= BTN_REMOVE && LOWORD(wParam) < BTN_REMOVE + MAX_ROWS) { // "Á¦°Å" ¹öÆ° Å¬¸¯    /   1Çà ¹öÆ° ~ 10Çà ¹öÆ°ÀÇ ID°¨Áö½Ä
-            int index = LOWORD(wParam) - BTN_REMOVE; // Å¬¸¯µÈ ¹öÆ°ID - ±âº»ID200
+        else if (LOWORD(wParam) >= BTN_REMOVE && LOWORD(wParam) < BTN_REMOVE + MAX_ROWS) { // "ì œê±°" ë²„íŠ¼ í´ë¦­    /   1í–‰ ë²„íŠ¼ ~ 10í–‰ ë²„íŠ¼ì˜ IDê°ì§€ì‹
+            int index = LOWORD(wParam) - BTN_REMOVE; // í´ë¦­ëœ ë²„íŠ¼ID - ê¸°ë³¸ID200
             RemoveRow(index, hWnd);
         }
         break;
 
-    case WM_DESTROY: // À©µµ¿ì Á¾·á ½Ã È£Ãâ
-        PostQuitMessage(0); // ¸Þ½ÃÁö ·çÇÁ Á¾·á
+    case WM_DESTROY: // ìœˆë„ìš° ì¢…ë£Œ ì‹œ í˜¸ì¶œ
+        PostQuitMessage(0); // ë©”ì‹œì§€ ë£¨í”„ ì¢…ë£Œ
         break;
     }
-    return DefWindowProc(hWnd, message, wParam, lParam); // ±âº» ¸Þ½ÃÁö Ã³¸®
+    return DefWindowProc(hWnd, message, wParam, lParam); // ê¸°ë³¸ ë©”ì‹œì§€ ì²˜ë¦¬
 }
 
-// »õ·Î¿î Çà Ãß°¡ ÇÔ¼ö
+// ìƒˆë¡œìš´ í–‰ ì¶”ê°€ í•¨ìˆ˜
 void AddRow(HWND hWnd) {
-    //ÃÖ´ë Çà °³¼ö¸¦ ³ÑÀ»½Ã ¿À·ù¸Þ¼¼Áö Ãâ·Â
+    //ìµœëŒ€ í–‰ ê°œìˆ˜ë¥¼ ë„˜ì„ì‹œ ì˜¤ë¥˜ë©”ì„¸ì§€ ì¶œë ¥
     if (rowCount >= MAX_ROWS) {
-        MessageBox(hWnd, L"ÃÖ´ë Çà ¼ö¸¦ ÃÊ°úÇß½À´Ï´Ù.", L"°æ°í", MB_ICONWARNING);
+        MessageBox(hWnd, L"ìµœëŒ€ í–‰ ìˆ˜ë¥¼ ì´ˆê³¼í–ˆìŠµë‹ˆë‹¤.", L"ê²½ê³ ", MB_ICONWARNING);
         return;
     }
 
-    int yPos = 10 + (rowCount * 30); // ¿Ã¹Ù¸¥ À§Ä¡ °è»ê
+    int yPos = 10 + (rowCount * 30); // ì˜¬ë°”ë¥¸ ìœ„ì¹˜ ê³„ì‚°
 
-    //°­ÀÇ¸í ÀÔ·ÂÇÊµå »ý¼º
-    hEdit[rowCount][0] = CreateWindow(L"EDIT", L"°­ÀÇ¸í", WS_BORDER | WS_VISIBLE | WS_CHILD | ES_AUTOHSCROLL,
+    //ê°•ì˜ëª… ìž…ë ¥í•„ë“œ ìƒì„±
+    hEdit[rowCount][0] = CreateWindow(L"EDIT", L"ê°•ì˜ëª…", WS_BORDER | WS_VISIBLE | WS_CHILD | ES_AUTOHSCROLL,
         10, yPos, 150, 25, hWnd, NULL, (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE), NULL);
-    //¿äÀÏ ÀÔ·ÂÇÊµå »ý¼º
-    hEdit[rowCount][1] = CreateWindow(L"EDIT", L"¿äÀÏ", WS_BORDER | WS_VISIBLE | WS_CHILD | ES_AUTOHSCROLL,
+    //ìš”ì¼ ìž…ë ¥í•„ë“œ ìƒì„±
+    hEdit[rowCount][1] = CreateWindow(L"EDIT", L"ìš”ì¼", WS_BORDER | WS_VISIBLE | WS_CHILD | ES_AUTOHSCROLL,
         170, yPos, 50, 25, hWnd, NULL, (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE), NULL);
-    //½ÃÀÛ½Ã°£ ÀÔ·ÂÇÊµå »ý¼º
-    hEdit[rowCount][2] = CreateWindow(L"EDIT", L"½ÃÀÛ½Ã°£", WS_BORDER | WS_VISIBLE | WS_CHILD | ES_AUTOHSCROLL,
+    //ì‹œìž‘ì‹œê°„ ìž…ë ¥í•„ë“œ ìƒì„±
+    hEdit[rowCount][2] = CreateWindow(L"EDIT", L"ì‹œìž‘ì‹œê°„", WS_BORDER | WS_VISIBLE | WS_CHILD | ES_AUTOHSCROLL,
         230, yPos, 100, 25, hWnd, NULL, (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE), NULL);
-    //³¡½Ã°£ ÀÔ·ÂÇÊµå »ý¼º
-    hEdit[rowCount][3] = CreateWindow(L"EDIT", L"³¡½Ã°£", WS_BORDER | WS_VISIBLE | WS_CHILD | ES_AUTOHSCROLL,
+    //ëì‹œê°„ ìž…ë ¥í•„ë“œ ìƒì„±
+    hEdit[rowCount][3] = CreateWindow(L"EDIT", L"ëì‹œê°„", WS_BORDER | WS_VISIBLE | WS_CHILD | ES_AUTOHSCROLL,
         340, yPos, 100, 25, hWnd, NULL, (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE), NULL);
-    //Á¦°Å ¹öÆ° »ý¼º
-    hButtonRemove[rowCount] = CreateWindow(L"BUTTON", L"Á¦°Å", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
+    //ì œê±° ë²„íŠ¼ ìƒì„±
+    hButtonRemove[rowCount] = CreateWindow(L"BUTTON", L"ì œê±°", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
         440, yPos, 50, 25, hWnd, (HMENU)(BTN_REMOVE + rowCount), (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE), NULL);
 
-    rowCount++; // Çà °³¼ö Áõ°¡
+    rowCount++; // í–‰ ê°œìˆ˜ ì¦ê°€
 }
 
-// Çà Á¦°Å ÇÔ¼ö
+// í–‰ ì œê±° í•¨ìˆ˜
 void RemoveRow(int index, HWND hWnd) {
     if (index < 0 || index >= rowCount) return;
 
-    // ±âÁ¸ Çà Á¦°Å
+    // ê¸°ì¡´ í–‰ ì œê±°
     DestroyWindow(hEdit[index][0]);
     DestroyWindow(hEdit[index][1]);
     DestroyWindow(hEdit[index][2]);
     DestroyWindow(hEdit[index][3]);
     DestroyWindow(hButtonRemove[index]);
 
-    // Á¦°ÅµÈ ÀÌÈÄ ÇàµéÀ» ÇÑ Ä­¾¿ À§·Î ÀÌµ¿
+    // ì œê±°ëœ ì´í›„ í–‰ë“¤ì„ í•œ ì¹¸ì”© ìœ„ë¡œ ì´ë™
     for (int i = index; i < rowCount - 1; i++) {
         hEdit[i][0] = hEdit[i + 1][0];
         hEdit[i][1] = hEdit[i + 1][1];
@@ -115,22 +115,22 @@ void RemoveRow(int index, HWND hWnd) {
         hEdit[i][3] = hEdit[i + 1][3];
         hButtonRemove[i] = hButtonRemove[i + 1];
 
-        // Á¦°Å ¹öÆ° ID ¾÷µ¥ÀÌÆ®
+        // ì œê±° ë²„íŠ¼ ID ì—…ë°ì´íŠ¸
         SetWindowLongPtr(hButtonRemove[i], GWLP_ID, BTN_REMOVE + i);
     }
 
-    // ¸¶Áö¸· Çà Æ÷ÀÎÅÍ Á¦°Å (Áßº¹ ÂüÁ¶ ¹æÁö)
+    // ë§ˆì§€ë§‰ í–‰ í¬ì¸í„° ì œê±° (ì¤‘ë³µ ì°¸ì¡° ë°©ì§€)
     hEdit[rowCount - 1][0] = NULL;
     hEdit[rowCount - 1][1] = NULL;
     hEdit[rowCount - 1][2] = NULL;
     hEdit[rowCount - 1][3] = NULL;
     hButtonRemove[rowCount - 1] = NULL;
 
-    rowCount--;  // ÀüÃ¼ Çà °³¼ö °¨¼Ò
-    UpdateRowPositions();  // ³²Àº ÇàµéÀÇ À§Ä¡ ¾÷µ¥ÀÌÆ®
+    rowCount--;  // ì „ì²´ í–‰ ê°œìˆ˜ ê°ì†Œ
+    UpdateRowPositions();  // ë‚¨ì€ í–‰ë“¤ì˜ ìœ„ì¹˜ ì—…ë°ì´íŠ¸
 }
 
-//Çà À§Ä¡ Àç¹è¿­ ÇÔ¼ö
+//í–‰ ìœ„ì¹˜ ìž¬ë°°ì—´ í•¨ìˆ˜
 void UpdateRowPositions() {
     for (int i = 0; i < rowCount; i++) {
         int yPos = 10 + (i * 30);
@@ -143,69 +143,69 @@ void UpdateRowPositions() {
 }
 
 
-// µ¥ÀÌÅÍ ÀúÀå ÇÔ¼ö
+// ë°ì´í„° ì €ìž¥ í•¨ìˆ˜
 void SaveData() {
-    // save.txt ÆÄÀÏÀ» ¾²±â ¸ðµå·Î ¿­±â
+    // save.txt íŒŒì¼ì„ ì“°ê¸° ëª¨ë“œë¡œ ì—´ê¸°
     FILE* file = fopen("save.txt", "w");
     if (file == NULL) {
-        MessageBox(NULL, L"ÆÄÀÏÀ» ¿­ ¼ö ¾ø½À´Ï´Ù.", L"¿À·ù", MB_ICONERROR);
+        MessageBox(NULL, L"íŒŒì¼ì„ ì—´ ìˆ˜ ì—†ìŠµë‹ˆë‹¤.", L"ì˜¤ë¥˜", MB_ICONERROR);
         return;
     }
 
-    // ¸ðµç ÇàÀÇ µ¥ÀÌÅÍ¸¦ ÆÄÀÏ¿¡ ÀúÀå
+    // ëª¨ë“  í–‰ì˜ ë°ì´í„°ë¥¼ íŒŒì¼ì— ì €ìž¥
     for (int i = 0; i < rowCount; i++) {
-        wchar_t wName[100], wDay[10], wStartTime[10], wEndTime[10]; //À¯´ÏÄÚµå Çü½Ä char
+        wchar_t wName[100], wDay[10], wStartTime[10], wEndTime[10]; //ìœ ë‹ˆì½”ë“œ í˜•ì‹ char
         GetWindowText(hEdit[i][0], wName, 100);
         GetWindowText(hEdit[i][1], wDay, 10);
         GetWindowText(hEdit[i][2], wStartTime, 10);
         GetWindowText(hEdit[i][3], wEndTime, 10);
 
-        // À¯´ÏÄÚµå ¹®ÀÚ¿­À» ¸ÖÆ¼¹ÙÀÌÆ® ¹®ÀÚ¿­·Î º¯È¯
+        // ìœ ë‹ˆì½”ë“œ ë¬¸ìžì—´ì„ ë©€í‹°ë°”ì´íŠ¸ ë¬¸ìžì—´ë¡œ ë³€í™˜
         char name[100], day[10], startTime[10], endTime[10];
         WideCharToMultiByte(CP_ACP, 0, wName, -1, name, sizeof(name), NULL, NULL);
         WideCharToMultiByte(CP_ACP, 0, wDay, -1, day, sizeof(day), NULL, NULL);
         WideCharToMultiByte(CP_ACP, 0, wStartTime, -1, startTime, sizeof(startTime), NULL, NULL);
         WideCharToMultiByte(CP_ACP, 0, wEndTime, -1, endTime, sizeof(endTime), NULL, NULL);
 
-        // ÆÄÀÏ¿¡ Çü½Ä¿¡ ¸Â°Ô ¾²±â
-        fprintf(file, "°­ÀÇ¸í: %s, ¿äÀÏ: %s, ½ÃÀÛ½Ã°£: %s, ³¡½Ã°£: %s\n", name, day, startTime, endTime);
+        // íŒŒì¼ì— í˜•ì‹ì— ë§žê²Œ ì“°ê¸°
+        fprintf(file, "ê°•ì˜ëª…: %s, ìš”ì¼: %s, ì‹œìž‘ì‹œê°„: %s, ëì‹œê°„: %s\n", name, day, startTime, endTime);
     }
 
-    // ÆÄÀÏ ´Ý±â
+    // íŒŒì¼ ë‹«ê¸°
     fclose(file);
 
-    MessageBox(NULL, L"µ¥ÀÌÅÍ°¡ save.txt ÆÄÀÏ¿¡ ÀúÀåµÇ¾ú½À´Ï´Ù.", L"¾Ë¸²", MB_OK);
+    MessageBox(NULL, L"ë°ì´í„°ê°€ save.txt íŒŒì¼ì— ì €ìž¥ë˜ì—ˆìŠµë‹ˆë‹¤.", L"ì•Œë¦¼", MB_OK);
 }
 
-// µ¥ÀÌÅÍ ÀúÀå ÇÔ¼ö
+// ë°ì´í„° ì €ìž¥ í•¨ìˆ˜
 void Struct_Saved_Data() {
-    // ¸ðµç ÇàÀÇ µ¥ÀÌÅÍ¸¦ courseData ¹è¿­¿¡ ÀúÀå
+    // ëª¨ë“  í–‰ì˜ ë°ì´í„°ë¥¼ courseData ë°°ì—´ì— ì €ìž¥
     for (int i = 0; i < rowCount; i++) {
-        GetWindowTextW(hEdit[i][0], courseData[i].name, sizeof(courseData[i].name));    // °­ÀÇ¸í ÀúÀå
-        GetWindowTextW(hEdit[i][1], courseData[i].day, sizeof(courseData[i].day));      // ¿äÀÏ ÀúÀå
-        GetWindowTextW(hEdit[i][2], courseData[i].startTime, sizeof(courseData[i].startTime)); // ½ÃÀÛ½Ã°£ ÀúÀå
-        GetWindowTextW(hEdit[i][3], courseData[i].endTime, sizeof(courseData[i].endTime));     // ³¡½Ã°£ ÀúÀå
+        GetWindowTextW(hEdit[i][0], courseData[i].name, sizeof(courseData[i].name));    // ê°•ì˜ëª… ì €ìž¥
+        GetWindowTextW(hEdit[i][1], courseData[i].day, sizeof(courseData[i].day));      // ìš”ì¼ ì €ìž¥
+        GetWindowTextW(hEdit[i][2], courseData[i].startTime, sizeof(courseData[i].startTime)); // ì‹œìž‘ì‹œê°„ ì €ìž¥
+        GetWindowTextW(hEdit[i][3], courseData[i].endTime, sizeof(courseData[i].endTime));     // ëì‹œê°„ ì €ìž¥
     }
 }
 
 /*
-WinMain ÇÔ¼ö:
+WinMain í•¨ìˆ˜:
 
-ÇÁ·Î±×·¥½ÃÀÛ
-À©µµ¿ì Å¬·¡½º¸¦ µî·ÏÇÏ°í, À©µµ¿ì¸¦ »ý¼ºÇÑ ÈÄ ¸Þ½ÃÁö ·çÇÁ¸¦ ½ÇÇà
+í”„ë¡œê·¸ëž¨ì‹œìž‘
+ìœˆë„ìš° í´ëž˜ìŠ¤ë¥¼ ë“±ë¡í•˜ê³ , ìœˆë„ìš°ë¥¼ ìƒì„±í•œ í›„ ë©”ì‹œì§€ ë£¨í”„ë¥¼ ì‹¤í–‰
 
-WndProc ÇÔ¼ö:
+WndProc í•¨ìˆ˜:
 
-À©µµ¿ì ¸Þ½ÃÁö¸¦ Ã³¸®ÇÏ´Â Ã¢ ÇÁ·Î½ÃÀú
-WM_CREATE: À©µµ¿ì »ý¼º ½Ã "Ãß°¡" ¹× "ÀúÀå" ¹öÆ°À» »ý¼º
-WM_COMMAND: ¹öÆ° Å¬¸¯ ÀÌº¥Æ®¸¦ Ã³¸®
-WM_DESTROY: À©µµ¿ì Á¾·á ½Ã ¸Þ½ÃÁö ·çÇÁ¸¦ Á¾·á
+ìœˆë„ìš° ë©”ì‹œì§€ë¥¼ ì²˜ë¦¬í•˜ëŠ” ì°½ í”„ë¡œì‹œì €
+WM_CREATE: ìœˆë„ìš° ìƒì„± ì‹œ "ì¶”ê°€" ë° "ì €ìž¥" ë²„íŠ¼ì„ ìƒì„±
+WM_COMMAND: ë²„íŠ¼ í´ë¦­ ì´ë²¤íŠ¸ë¥¼ ì²˜ë¦¬
+WM_DESTROY: ìœˆë„ìš° ì¢…ë£Œ ì‹œ ë©”ì‹œì§€ ë£¨í”„ë¥¼ ì¢…ë£Œ
 
-AddRow ÇÔ¼ö:
+AddRow í•¨ìˆ˜:
 
-»õ·Î¿î ÇàÀ» Ãß°¡ÇÏ´Â ÇÔ¼ö
-ÃÖ´ë Çà ¼ö¸¦ ÃÊ°úÇÏ¸é °æ°í ¸Þ½ÃÁö¸¦ Ç¥½Ã
-ÀÔ·Â ÇÊµå »ý¼º¿¡ ½ÇÆÐÇÏ¸é ¿¡·¯ ¸Þ½ÃÁö¸¦ Ç¥½Ã
+ìƒˆë¡œìš´ í–‰ì„ ì¶”ê°€í•˜ëŠ” í•¨ìˆ˜
+ìµœëŒ€ í–‰ ìˆ˜ë¥¼ ì´ˆê³¼í•˜ë©´ ê²½ê³  ë©”ì‹œì§€ë¥¼ í‘œì‹œ
+ìž…ë ¥ í•„ë“œ ìƒì„±ì— ì‹¤íŒ¨í•˜ë©´ ì—ëŸ¬ ë©”ì‹œì§€ë¥¼ í‘œì‹œ
 
-SaveData ÇÔ¼ö:
+SaveData í•¨ìˆ˜:
 */
