@@ -2,16 +2,37 @@
 #include <windows.h>
 #include "interface_function.h"
 
-//변수선언
-#define MAX_ROWS 10       // 최대 행 수
-#define BTN_ADD 100       // "추가" 버튼 ID
-#define BTN_SAVE 101      // "저장" 버튼 ID
-#define BTN_REMOVE 200    // "제거" 버튼 ID
+extern int rowCount = 0;         // 현재 추가된 행 수
 
-HWND hEdit[MAX_ROWS][4];  // 각 행의 강의명, 요일, 시작시간, 끝시간 입력 필드 핸들
-HWND hButtonAdd, hButtonSave; // "추가" 및 "저장" 버튼 핸들
-HWND hButtonRemove[MAX_ROWS]; // "제거" 버튼 핸들
-int rowCount = 0;         // 현재 추가된 행 수
+// 프로그램 진입점
+int WINAPI showindow1(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nCmdShow) {
+    // 윈도우 클래스 등록
+    WNDCLASS wc = { 0 };
+    wc.lpfnWndProc = WndProc;              // 창 프로시저 설정
+    wc.hInstance = hInstance;              // 인스턴스 핸들
+    wc.lpszClassName = L"TimetableWindow";  // 클래스 이름
+    wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1); // 배경색
+    wc.hCursor = LoadCursor(NULL, IDC_ARROW);      // 커서 설정
+    RegisterClass(&wc); // 클래스 등록
+
+    // 윈도우 생성
+    HWND hWnd = CreateWindow(L"TimetableWindow", L"시간표 생성기", WS_OVERLAPPEDWINDOW,
+        CW_USEDEFAULT, CW_USEDEFAULT, 500, 400,
+        NULL, NULL, hInstance, NULL);
+
+    // 윈도우 표시
+    ShowWindow(hWnd, nCmdShow);
+    UpdateWindow(hWnd);
+    AddRow(hWnd);
+
+    // 메시지 루프
+    MSG msg;
+    while (GetMessage(&msg, NULL, 0, 0)) {
+        TranslateMessage(&msg); // 키보드 메시지 변환
+        DispatchMessage(&msg);  // 메시지 처리
+    }
+    return (int)msg.wParam; // 프로그램 종료
+}
 
 // 창 프로시저: 윈도우 메시지 처리
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -31,6 +52,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
         }
         else if (LOWORD(wParam) == BTN_SAVE) { // "저장" 버튼 클릭
             SaveData(); // 데이터 저장
+            Struct_Saved_Data(); //데이터 저장
         }
         else if (LOWORD(wParam) >= BTN_REMOVE && LOWORD(wParam) < BTN_REMOVE + MAX_ROWS) { // "제거" 버튼 클릭    /   1행 버튼 ~ 10행 버튼의 ID감지식
             int index = LOWORD(wParam) - BTN_REMOVE; // 클릭된 버튼ID - 기본ID200
@@ -155,6 +177,16 @@ void SaveData() {
     MessageBox(NULL, L"데이터가 save.txt 파일에 저장되었습니다.", L"알림", MB_OK);
 }
 
+// 데이터 저장 함수
+void Struct_Saved_Data() {
+    // 모든 행의 데이터를 courseData 배열에 저장
+    for (int i = 0; i < rowCount; i++) {
+        GetWindowTextW(hEdit[i][0], courseData[i].name, sizeof(courseData[i].name));    // 강의명 저장
+        GetWindowTextW(hEdit[i][1], courseData[i].day, sizeof(courseData[i].day));      // 요일 저장
+        GetWindowTextW(hEdit[i][2], courseData[i].startTime, sizeof(courseData[i].startTime)); // 시작시간 저장
+        GetWindowTextW(hEdit[i][3], courseData[i].endTime, sizeof(courseData[i].endTime));     // 끝시간 저장
+    }
+}
 
 /*
 WinMain 함수:
