@@ -1,6 +1,7 @@
 #pragma once
 #include<windows.h>
 #include<stdlib.h>
+#include<stdbool.h>
 
 // GUI 링커 설정이 없다면/콘솔 모드라면 자동으로 진입점을 WinMain으로 설정
 #ifdef _WIN32
@@ -44,11 +45,21 @@ void showWindow2(HINSTANCE);
 void closeWindow2(void);
 
 // 스케줄 화면 이름
-const wchar_t* SCHEWIN_CLASSNAME = "SCHEDULE_VIEWER";
-const wchar_t* SCHEWIN_TITLE = "Timetable Maker - Viewer"
+#define SCHEWIN_CLASSNAME "SCHEDULE_VIEWER"
+#define SCHEWIN_TITLE "Timetable Maker - Viewer"
 
 // 화면 크기 옵션
-// 초기 설정은 안드로이드 위젯 느낌으로 9:16 or 9:20
-const int SCHEWIN_WIDTH = 360; // 가로
-const int SCHEWIN_HEIGHT = 640; // 세로
-const int SCHEWIN_PADDING = 10; // 최외곽 패딩
+// 초기 설정은 안드로이드 위젯 느낌으로 3:4 or 9:16 or 9:20
+#define SCHEWIN_WIDTH 300 // 가로
+#define SCHEWIN_HEIGHT 400 // 세로
+#define SCHEWIN_PADDING 10 // 최외곽 패딩
+
+// 화면 스타일 옵션
+#define SCHEWIN_STYLE (WS_CAPTION \
+                        | WS_SYSMENU \
+                        | WS_MINIMIZE \
+                        | WS_VISIBLE \
+                        | WS_VSCROLL \
+                        | WS_TABSTOP \
+                        | WS_OVERLAPPED)
+#define SCHEWIN_BGCOLOR (HBRUSH)(COLOR_WINDOW+1)
