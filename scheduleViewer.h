@@ -13,6 +13,12 @@
     #endif
 #endif
 
+
+
+// --------------------------------
+// ---------- Interfaces ----------
+// --------------------------------
+
 /**
  * @name Subject
  * 과목 구조체
@@ -47,6 +53,17 @@ void showWindow2(HINSTANCE);
 // 시간표 화면 닫기
 void closeWindow2(void);
 
+// --------------------------------
+// ---------- Interfaces ----------
+// --------------------------------
+
+
+
+
+// --------------------------------
+// ---------- Constants -----------
+// --------------------------------
+
 // 스케줄 화면 이름
 #define SCHEWIN_CLASSNAME "SCHEDULE_VIEWER"
 #define SCHEWIN_CLASSNAME_W L"SCHEDULE_VIEWER"
@@ -67,3 +84,8 @@ void closeWindow2(void);
                         | WS_TABSTOP \
                         | WS_OVERLAPPED)
 #define SCHEWIN_BGCOLOR (HBRUSH)(COLOR_WINDOW+1)
+
+
+// --------------------------------
+// ---------- Constants -----------
+// --------------------------------
