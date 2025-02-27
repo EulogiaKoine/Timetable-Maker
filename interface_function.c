@@ -1,27 +1,25 @@
-#include <stdio.h>
-#include <windows.h>
 #include "interface_function.h"
 
-extern int rowCount = 0;         // 현재 추가된 행 수
+int rowCount = 0;         // 현재 추가된 행 수
 
 // 프로그램 진입점
-int WINAPI showindow1(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nCmdShow) {
+void showWindow1(HINSTANCE hInstance) {
     // 윈도우 클래스 등록
-    WNDCLASS wc = { 0 };
+    WNDCLASSW wc = { 0 };
     wc.lpfnWndProc = WndProc;              // 창 프로시저 설정
     wc.hInstance = hInstance;              // 인스턴스 핸들
     wc.lpszClassName = L"TimetableWindow";  // 클래스 이름
     wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1); // 배경색
     wc.hCursor = LoadCursor(NULL, IDC_ARROW);      // 커서 설정
-    RegisterClass(&wc); // 클래스 등록
+    RegisterClassW(&wc); // 클래스 등록
 
     // 윈도우 생성
-    HWND hWnd = CreateWindow(L"TimetableWindow", L"시간표 생성기", WS_OVERLAPPEDWINDOW,
+    HWND hWnd = CreateWindowW(L"TimetableWindow", L"시간표 생성기", WS_OVERLAPPEDWINDOW,
         CW_USEDEFAULT, CW_USEDEFAULT, 500, 400,
         NULL, NULL, hInstance, NULL);
 
     // 윈도우 표시
-    ShowWindow(hWnd, nCmdShow);
+    ShowWindow(hWnd, SW_SHOWNORMAL /* 기본 띄우기 */);
     UpdateWindow(hWnd);
     AddRow(hWnd);
 
@@ -31,7 +29,8 @@ int WINAPI showindow1(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
         TranslateMessage(&msg); // 키보드 메시지 변환
         DispatchMessage(&msg);  // 메시지 처리
     }
-    return (int)msg.wParam; // 프로그램 종료
+
+    // return (int)msg.wParam; // 프로그램 종료
 }
 
 // 창 프로시저: 윈도우 메시지 처리
@@ -39,10 +38,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
     switch (message) {
     case WM_CREATE: // 윈도우 생성 시 호출
         // "과목추가" 버튼 생성
-        hButtonAdd = CreateWindow(L"BUTTON", L"과목추가", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
+        hButtonAdd = CreateWindowW(L"BUTTON", L"과목추가", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
             70, 320, 100, 30, hWnd, (HMENU)BTN_ADD, (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE), NULL);
         // "저장" 버튼 생성
-        hButtonSave = CreateWindow(L"BUTTON", L"저장", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
+        hButtonSave = CreateWindowW(L"BUTTON", L"저장", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
             10, 320, 50, 30, hWnd, (HMENU)BTN_SAVE, (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE), NULL);
         break;
 
@@ -71,26 +70,26 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 void AddRow(HWND hWnd) {
     //최대 행 개수를 넘을시 오류메세지 출력
     if (rowCount >= MAX_ROWS) {
-        MessageBox(hWnd, L"최대 행 수를 초과했습니다.", L"경고", MB_ICONWARNING);
+        MessageBoxW(hWnd, L"최대 행 수를 초과했습니다.", L"경고", MB_ICONWARNING);
         return;
     }
 
     int yPos = 10 + (rowCount * 30); // 올바른 위치 계산
 
     //강의명 입력필드 생성
-    hEdit[rowCount][0] = CreateWindow(L"EDIT", L"강의명", WS_BORDER | WS_VISIBLE | WS_CHILD | ES_AUTOHSCROLL,
+    hEdit[rowCount][0] = CreateWindowW(L"EDIT", L"강의명", WS_BORDER | WS_VISIBLE | WS_CHILD | ES_AUTOHSCROLL,
         10, yPos, 150, 25, hWnd, NULL, (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE), NULL);
     //요일 입력필드 생성
-    hEdit[rowCount][1] = CreateWindow(L"EDIT", L"요일", WS_BORDER | WS_VISIBLE | WS_CHILD | ES_AUTOHSCROLL,
+    hEdit[rowCount][1] = CreateWindowW(L"EDIT", L"요일", WS_BORDER | WS_VISIBLE | WS_CHILD | ES_AUTOHSCROLL,
         170, yPos, 50, 25, hWnd, NULL, (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE), NULL);
     //시작시간 입력필드 생성
-    hEdit[rowCount][2] = CreateWindow(L"EDIT", L"시작시간", WS_BORDER | WS_VISIBLE | WS_CHILD | ES_AUTOHSCROLL,
+    hEdit[rowCount][2] = CreateWindowW(L"EDIT", L"시작시간", WS_BORDER | WS_VISIBLE | WS_CHILD | ES_AUTOHSCROLL,
         230, yPos, 100, 25, hWnd, NULL, (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE), NULL);
     //끝시간 입력필드 생성
-    hEdit[rowCount][3] = CreateWindow(L"EDIT", L"끝시간", WS_BORDER | WS_VISIBLE | WS_CHILD | ES_AUTOHSCROLL,
+    hEdit[rowCount][3] = CreateWindowW(L"EDIT", L"끝시간", WS_BORDER | WS_VISIBLE | WS_CHILD | ES_AUTOHSCROLL,
         340, yPos, 100, 25, hWnd, NULL, (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE), NULL);
     //제거 버튼 생성
-    hButtonRemove[rowCount] = CreateWindow(L"BUTTON", L"제거", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
+    hButtonRemove[rowCount] = CreateWindowW(L"BUTTON", L"제거", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
         440, yPos, 50, 25, hWnd, (HMENU)(BTN_REMOVE + rowCount), (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE), NULL);
 
     rowCount++; // 행 개수 증가
@@ -148,17 +147,17 @@ void SaveData() {
     // save.txt 파일을 쓰기 모드로 열기
     FILE* file = fopen("save.txt", "w");
     if (file == NULL) {
-        MessageBox(NULL, L"파일을 열 수 없습니다.", L"오류", MB_ICONERROR);
+        MessageBoxW(NULL, L"파일을 열 수 없습니다.", L"오류", MB_ICONERROR);
         return;
     }
 
     // 모든 행의 데이터를 파일에 저장
     for (int i = 0; i < rowCount; i++) {
         wchar_t wName[100], wDay[10], wStartTime[10], wEndTime[10]; //유니코드 형식 char
-        GetWindowText(hEdit[i][0], wName, 100);
-        GetWindowText(hEdit[i][1], wDay, 10);
-        GetWindowText(hEdit[i][2], wStartTime, 10);
-        GetWindowText(hEdit[i][3], wEndTime, 10);
+        GetWindowTextW(hEdit[i][0], wName, 100);
+        GetWindowTextW(hEdit[i][1], wDay, 10);
+        GetWindowTextW(hEdit[i][2], wStartTime, 10);
+        GetWindowTextW(hEdit[i][3], wEndTime, 10);
 
         // 유니코드 문자열을 멀티바이트 문자열로 변환
         char name[100], day[10], startTime[10], endTime[10];
@@ -174,7 +173,7 @@ void SaveData() {
     // 파일 닫기
     fclose(file);
 
-    MessageBox(NULL, L"데이터가 save.txt 파일에 저장되었습니다.", L"알림", MB_OK);
+    MessageBoxW(NULL, L"데이터가 save.txt 파일에 저장되었습니다.", L"알림", MB_OK);
 }
 
 // 데이터 저장 함수

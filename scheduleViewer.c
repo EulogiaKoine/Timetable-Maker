@@ -1,9 +1,9 @@
 #include "scheduleViewer.h"
 
 
-// ì •ì  ìŠ¤ì¼€ì¤„ ëª©ë¡ ê´€ë¦¬
-static Schedule* schedules = NULL; // ì „ë‹¬ëœ ì‹œê°„í‘œ ë°ì´í„°
-static int scheduleCount = 0;      // ì‹œê°„í‘œ ê°œìˆ˜
+// Á¤Àû ½ºÄÉÁÙ ¸ñ·Ï °ü¸®
+static Schedule* schedules = NULL; // Àü´ŞµÈ ½Ã°£Ç¥ µ¥ÀÌÅÍ
+static int scheduleCount = 0;      // ½Ã°£Ç¥ °³¼ö
 void applySchedules(Schedule* _input, int count){
     schedules = _input;
     scheduleCount = count;
@@ -36,7 +36,7 @@ void showWindow2(HINSTANCE hInst){
         return;
     }
 
-    ShowWindow(houter, SW_SHOWMINIMIZED);
+    ShowWindow(houter, SW_SHOWNORMAL);
     UpdateWindow(houter);
 
     MSG msg;
@@ -51,7 +51,7 @@ void showWindow2(HINSTANCE hInst){
 
 static bool isWindowAlreadyExists(HINSTANCE hInst){
     WNDCLASSW t_wc;
-    return (bool)GetClassInfoW(hInst, SCHEWIN_CLASSNAME, &t_wc);
+    return (bool)GetClassInfoW(hInst, SCHEWIN_CLASSNAME_W, &t_wc);
 }
 
 static void registerWindow(HINSTANCE hInst){
@@ -59,8 +59,8 @@ static void registerWindow(HINSTANCE hInst){
     WNDCLASSW wc = { 0 };
     wc.lpfnWndProc = schedule_viewer_procedure;
     wc.hInstance = hInst;
-    wc.lpszClassName = SCHEWIN_CLASSNAME;
-    // ì•„ë˜ëŠ” ê¸°ë³¸ê°’; ì„ íƒì‚¬í•­
+    wc.lpszClassName = SCHEWIN_CLASSNAME_W;
+    // ¾Æ·¡´Â ±âº»°ª; ¼±ÅÃ»çÇ×
     // wc.hIcon = LoadIcon(NULL, IDI_APPLICATION);
     // wc.hCursor = LoadCursor(NULL, IDC_ARROW);
     wc.hbrBackground = SCHEWIN_BGCOLOR;
@@ -70,12 +70,12 @@ static void registerWindow(HINSTANCE hInst){
 }
 
 static HWND createOuterFrame(HINSTANCE hInst){
-    // í™”ë©´ ìš°ì¸¡ ìƒë‹¨ì— ë¶™ê²Œ ìƒì„±
+    // È­¸é ¿ìÃø »ó´Ü¿¡ ºÙ°Ô »ı¼º
     int screenWidth = GetSystemMetrics(SM_CXSCREEN);
     // int screenHeight = GetSystemMetrics(SM_CYSCREEN);
 
     return CreateWindowW(
-        SCHEWIN_CLASSNAME, SCHEWIN_TITLE,
+        SCHEWIN_CLASSNAME_W, SCHEWIN_TITLE,
         SCHEWIN_STYLE,
         screenWidth - SCHEWIN_WIDTH - 1, 0,
         SCHEWIN_WIDTH, SCHEWIN_HEIGHT,
@@ -87,15 +87,15 @@ static HWND createOuterFrame(HINSTANCE hInst){
 
 static LRESULT CALLBACK schedule_viewer_procedure(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam){
     switch(uMsg){
-        case WM_DESTROY: // ì°½ ë‹«ê¸° ì´ë²¤íŠ¸
-            PostQuitMessage(0); // í”„ë¡œê·¸ë¨ ì¢…ë£Œ ë©”ì‹œì§€ ì „ì†¡
+        case WM_DESTROY: // Ã¢ ´İ±â ÀÌº¥Æ®
+            PostQuitMessage(0); // ÇÁ·Î±×·¥ Á¾·á ¸Ş½ÃÁö Àü¼Û
             return 0;
 
         // case WM_PAINT:
         //     {
         //         PAINTSTRUCT ps;
-        //         HDC hdc = BeginPaint(hwnd, &ps); // ê·¸ë¦¬ê¸° ì»¨í…ìŠ¤íŠ¸ ê°€ì ¸ì˜¤ê¸°
-        //         FillRect(hdc, &ps.rcPaint, (HBRUSH)(COLOR_WINDOW+1)); // ë°°ê²½ ì±„ìš°ê¸°
+        //         HDC hdc = BeginPaint(hwnd, &ps); // ±×¸®±â ÄÁÅØ½ºÆ® °¡Á®¿À±â
+        //         FillRect(hdc, &ps.rcPaint, (HBRUSH)(COLOR_WINDOW+1)); // ¹è°æ Ã¤¿ì±â
         //         EndPaint(hwnd, &ps);
         //     }
         //     return 0;

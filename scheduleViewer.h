@@ -1,4 +1,7 @@
 #pragma once
+#ifndef UNICODE // 텍스트 이상 방지
+    #define UNICODE
+#endif
 #include<windows.h>
 #include<stdlib.h>
 #include<stdbool.h>
@@ -45,7 +48,8 @@ void showWindow2(HINSTANCE);
 void closeWindow2(void);
 
 // 스케줄 화면 이름
-#define SCHEWIN_CLASSNAME L"SCHEDULE_VIEWER"
+#define SCHEWIN_CLASSNAME "SCHEDULE_VIEWER"
+#define SCHEWIN_CLASSNAME_W L"SCHEDULE_VIEWER"
 #define SCHEWIN_TITLE L"Timetable Maker - 뷰어"
 
 // 화면 크기 옵션
