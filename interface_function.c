@@ -43,6 +43,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
         // "저장" 버튼 생성
         hButtonSave = CreateWindowW(L"BUTTON", L"저장", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
             10, 320, 50, 30, hWnd, (HMENU)BTN_SAVE, (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE), NULL);
+        // "시간표 생성" 버튼 생성 -> 윈도우창 종료역할도 함
+        hButtonExit = CreateWindowW(L"BUTTON", L"시간표 생성", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
+            180, 320, 100, 30, hWnd, (HMENU)BTN_EXIT, (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE), NULL);
         break;
 
     case WM_COMMAND: // 버튼 클릭 등 명령 처리
@@ -56,6 +59,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
         else if (LOWORD(wParam) >= BTN_REMOVE && LOWORD(wParam) < BTN_REMOVE + MAX_ROWS) { // "제거" 버튼 클릭    /   1행 버튼 ~ 10행 버튼의 ID감지식
             int index = LOWORD(wParam) - BTN_REMOVE; // 클릭된 버튼ID - 기본ID200
             RemoveRow(index, hWnd);
+        }
+        else if (LOWORD(wParam) == BTN_EXIT) {  // 🔹 시간표생성 버튼 클릭
+            SaveData(); // 데이터 저장
+            Struct_Saved_Data(); //데이터 저장
+            PostQuitMessage(0);  // 윈도우 종료
         }
         break;
 

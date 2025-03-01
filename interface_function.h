@@ -11,11 +11,13 @@
 #define MAX_ROWS 10       // 최대 행 수
 #define BTN_ADD 100       // "추가" 버튼 ID
 #define BTN_SAVE 101      // "저장" 버튼 ID
-#define BTN_REMOVE 200    // "제거" 버튼 ID
+#define BTN_REMOVE 200    // "제거" 버튼 ID 
+#define BTN_EXIT 300      // "종료 / 시간표 생성" 버튼 ID
 
 HWND hEdit[MAX_ROWS][4];  // 각 행의 강의명, 요일, 시작시간, 끝시간 입력 필드 핸들
 HWND hButtonAdd, hButtonSave; // "추가" 및 "저장" 버튼 핸들
 HWND hButtonRemove[MAX_ROWS]; // "제거" 버튼 핸들
+HWND hButtonExit;             // "종료 / 시간표생성" 버튼 핸들
 extern int rowCount;         // 현재 추가된 행 수
 
 // 강의 정보를 저장하는 구조체
