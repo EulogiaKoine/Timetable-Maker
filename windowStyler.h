@@ -15,7 +15,7 @@ void roundRect(
 // 요소 내에 텍스트 그리기
 // 정렬 가능
 void drawText(
-    HDC hdc, PAINTSTRUCT ps,                    // 그릴 요소의 그리기용 컨텍스트와 정보
+    HDC hdc, PAINTSTRUCT ps,                    // 그릴 요소의 그리기용 컨텍스트 핸들과 그 정보
     LPCWSTR text,                               // 그릴 텍스트
     COLORREF color,                             // 텍스트 색깔
     bool horizontal_align, bool vertical_align, // 수평 가운데 정렬, 수직 가운데 정렬 여부
