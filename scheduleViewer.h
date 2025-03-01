@@ -3,15 +3,16 @@
     #define UNICODE
 #endif
 #include<windows.h>
+#include<stdio.h>
 #include<stdlib.h>
 #include<stdbool.h>
-
 // GUI 링커 설정이 없다면/콘솔 모드라면 자동으로 진입점을 WinMain으로 설정
-#ifdef _WIN32
-    #ifndef _CONSOLE
-        #pragma comment(linker, "/ENTRY:WinMainCRTStartup")
-    #endif
-#endif
+// gcc 컴파일 옵션 -mwindows로 대체
+// #ifdef _WIN32
+//     #ifndef _CONSOLE
+//         #pragma comment(linker, "/ENTRY:WinMainCRTStartup")
+//     #endif
+// #endif
 
 
 
@@ -68,12 +69,14 @@ void closeWindow2(void);
 #define SCHEWIN_CLASSNAME "SCHEDULE_VIEWER"
 #define SCHEWIN_CLASSNAME_W L"SCHEDULE_VIEWER"
 #define SCHEWIN_TITLE L"Timetable Maker - 뷰어"
+#define SCHEHEADER_TITLE L"시간표"
 
 // 화면 크기 옵션
 // 초기 설정은 안드로이드 위젯 느낌으로 3:4 or 9:16 or 9:20
-#define SCHEWIN_WIDTH 300 // 가로
+#define SCHEWIN_WIDTH 300 // 가로; 스크롤 반영
 #define SCHEWIN_HEIGHT 400 // 세로
 #define SCHEWIN_PADDING 10 // 최외곽 패딩
+#define SCHEHEADER_HEIGHT 50
 
 // 화면 스타일 옵션
 #define SCHEWIN_STYLE (WS_CAPTION \
@@ -84,7 +87,10 @@ void closeWindow2(void);
                         | WS_TABSTOP \
                         | WS_OVERLAPPED)
 #define SCHEWIN_BGCOLOR (HBRUSH)(COLOR_WINDOW+1)
-
+#define SCHEHEADER_STYLE (WS_VISIBLE | WS_CHILD | SS_CENTER)
+#define SCHEHEADER_COLOR RGB(108, 190, 191)
+#define SCHEHEADER_BORDER_COLOR RGB(255, 255, 255)
+#define SCHEHEADER_ROUNDNESS 20  // 괄호 없이, 20px*20px만큼 꺾이도록
 
 // --------------------------------
 // ---------- Constants -----------
