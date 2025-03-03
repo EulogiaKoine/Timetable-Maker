@@ -109,6 +109,7 @@ static void styleHeader(){
     HDC hdc = BeginPaint(viewer.header, &ps);
     roundRect(hdc, ps, SCHEHEADER_COLOR, SCHEHEADER_BORDER_COLOR, SCHEHEADER_ROUNDNESS);
     drawText(hdc, ps, SCHEHEADER_TITLE, RGB(0, 0, 0), true, true, false);
+    EndPaint(viewer.header, &ps);
 }
 static void initWindow(){
     viewer.body = createOuterFrame();
