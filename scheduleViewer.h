@@ -76,7 +76,9 @@ void closeWindow2(void);
 #define SCHEWIN_WIDTH 300 // 가로; 스크롤 반영
 #define SCHEWIN_HEIGHT 400 // 세로
 #define SCHEWIN_PADDING 10 // 최외곽 패딩
-#define SCHEHEADER_HEIGHT 50
+#define SCHEHEADER_HEIGHT 50 // 헤더 높이
+#define SCHESEL_WIDTH 200 // 선택창 가로
+#define SCHESEL_HEIGHT 100 // 선택창 세로, 50 미만이면 드롭다운이 안됨
 
 // 화면 스타일 옵션
 #define SCHEWIN_STYLE (WS_CAPTION \
@@ -91,6 +93,11 @@ void closeWindow2(void);
 #define SCHEHEADER_COLOR RGB(108, 190, 191)
 #define SCHEHEADER_BORDER_COLOR RGB(255, 255, 255)
 #define SCHEHEADER_ROUNDNESS 20  // 괄호 없이, 20px*20px만큼 꺾이도록
+#define SCHESEL_STYLE (WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST | WS_VSCROLL) // combobox-dropdownlist: single selection
+#define SCHESEL_ALIGN 1 // 수평 정렬 옵션; 0=왼쪽, 1=가운데, 2=오른쪽
+
+// control components' ids
+#define ID_SELECTOR (HMENU)1001
 
 // --------------------------------
 // ---------- Constants -----------

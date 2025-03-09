@@ -2,10 +2,10 @@
 #include "windowStyler.h"
 
 
-// Á¤Àû ½ºÄÉÁÙ ¸ñ·Ï °ü¸®
-static Schedule* schedules = NULL; // Àü´ŞµÈ ½Ã°£Ç¥ µ¥ÀÌÅÍ
-static int scheduleCount = 0;      // ½Ã°£Ç¥ °³¼ö
-// ¿ÜºÎ¿¡¼­ À§ º¯¼ö °»½ÅÇÏ´Â ¿ë
+// ì •ì  ìŠ¤ì¼€ì¤„ ëª©ë¡ ê´€ë¦¬
+static Schedule* schedules = NULL; // ì „ë‹¬ëœ ì‹œê°„í‘œ ë°ì´í„°
+static int scheduleCount = 0;      // ì‹œê°„í‘œ ê°œìˆ˜
+// ì™¸ë¶€ì—ì„œ ìœ„ ë³€ìˆ˜ ê°±ì‹ í•˜ëŠ” ìš©
 void applySchedules(Schedule* _input, int count){
     schedules = _input;
     scheduleCount = count;
@@ -16,12 +16,13 @@ void applySchedules(Schedule* _input, int count){
 // ---------- window ---------
 // ---------------------------
 
-// ³»ºÎÀûÀÎ È­¸é °ü¸®¿ë ±¸Á¶Ã¼
+// ë‚´ë¶€ì ì¸ í™”ë©´ ê´€ë¦¬ìš© êµ¬ì¡°ì²´
 static struct {
-    HWND body;           // ¿ÜºÎ Æ²
-    HWND header;         // Çì´õ
-    HWND sche_container; // »ı¼ºµÈ ½Ã°£Ç¥ ÄÁÅ×ÀÌ³Ê
-} viewer = { false };
+    HWND body;           // ì™¸ë¶€ í‹€
+    HWND header;         // í—¤ë”
+    HWND selector;       // ìƒì„±ëœ ì‹œê°„í‘œ ì„ íƒì°½
+    HWND sche_container; // ìƒì„±ëœ ì‹œê°„í‘œ ì»¨í…Œì´ë„ˆ
+} viewer = { 0 };
 
 
 HINSTANCE hInst = NULL;
@@ -31,7 +32,6 @@ static LRESULT CALLBACK schedule_viewer_procedure(HWND, UINT, WPARAM, LPARAM);
 static bool isWindowAlreadyExists();
 static void registerWindow();
 static void initWindow();
-
 
 
 void showWindow2(HINSTANCE hInstance){
@@ -45,7 +45,7 @@ void showWindow2(HINSTANCE hInstance){
     // default window class setting
     registerWindow();
     initWindow();
-
+    
     ShowWindow(viewer.body, SW_SHOWNORMAL);
     UpdateWindow(viewer.body);
 
@@ -63,14 +63,13 @@ static bool isWindowAlreadyExists(){
     WNDCLASSW t_wc;
     return (bool)GetClassInfoW(hInst, SCHEWIN_CLASSNAME_W, &t_wc);
 }
-
 static void registerWindow(){
     // assert isWindowAlreadyExists(hInst) == false
     WNDCLASSW wc = { 0 };
     wc.lpfnWndProc = schedule_viewer_procedure;
     wc.hInstance = hInst;
     wc.lpszClassName = SCHEWIN_CLASSNAME_W;
-    // ¾Æ·¡´Â ±âº»°ª; ¼±ÅÃ»çÇ×
+    // ì•„ë˜ëŠ” ê¸°ë³¸ê°’; ì„ íƒì‚¬í•­
     // wc.hIcon = LoadIcon(NULL, IDI_APPLICATION);
     // wc.hCursor = LoadCursor(NULL, IDC_ARROW);
     wc.hbrBackground = SCHEWIN_BGCOLOR;
@@ -79,11 +78,33 @@ static void registerWindow(){
     RegisterClassW(&wc);
 }
 
+
+
+// ---------------------------
+// -------- win init ---------
+// ---------------------------
+
+// ìŠ¤ì¼€ì¤„ í™”ë©´ ê¸°ì¤€ ìˆ˜í‰ ë°©í–¥ ì •ë ¬ ì˜µì…˜ì— ë”°ë¥¸ xì¢Œí‘œ ë°˜í™˜; íŒ¨ë”© ì ìš©
+// option: 0=left, 1=center, 2=rigth
+// width: ë°°ì¹˜í•  ìš”ì†Œì˜ ê°€ë¡œ ê¸¸ì´
+static int calculateAlignPos(int option, int width){
+    switch(option){
+        case 0: // ì™¼ìª½ ì •ë ¬
+            return SCHEWIN_PADDING;
+        case 1: // ì¤‘ì•™ ì •ë ¬
+            return (SCHEWIN_WIDTH - width) / 2;
+        case 2: // ì˜¤ë¥¸ìª½ ì •ë ¬
+            return SCHEWIN_WIDTH - width - SCHEWIN_PADDING;
+        default:
+            return SCHEWIN_PADDING;
+    }
+}
+
 static HWND createOuterFrame(){
-    // È­¸é ¿ìÃø »ó´Ü¿¡ ºÙ°Ô »ı¼º
+    // í™”ë©´ ìš°ì¸¡ ìƒë‹¨ì— ë¶™ê²Œ ìƒì„±
     int screenWidth = GetSystemMetrics(SM_CXSCREEN);
     // int screenHeight = GetSystemMetrics(SM_CYSCREEN);
-    int scrollWidth = GetSystemMetrics(SM_CXVSCROLL); // ½ºÅ©·Ñ ³Êºñ
+    int scrollWidth = GetSystemMetrics(SM_CXVSCROLL); // ìŠ¤í¬ë¡¤ ë„ˆë¹„
 
     return CreateWindowW(
         SCHEWIN_CLASSNAME_W, SCHEWIN_TITLE,
@@ -94,6 +115,13 @@ static HWND createOuterFrame(){
         hInst, NULL
     );
 }
+static void styleOuterFrame(){
+    PAINTSTRUCT ps;
+    HDC hdc = BeginPaint(viewer.body, &ps);
+    FillRect(hdc, &ps.rcPaint, SCHEWIN_BGCOLOR);
+    EndPaint(viewer.body, &ps);
+}
+
 static HWND createHeader(){
     return CreateWindowW(
         L"STATIC", SCHEHEADER_TITLE,
@@ -111,32 +139,91 @@ static void styleHeader(){
     drawText(hdc, ps, SCHEHEADER_TITLE, RGB(0, 0, 0), true, true, false);
     EndPaint(viewer.header, &ps);
 }
-static void initWindow(){
-    viewer.body = createOuterFrame();
-    viewer.header = createHeader();
+
+static HWND createSelector(){
+    return CreateWindowW(L"COMBOBOX",
+        NULL,    // default text
+        SCHESEL_STYLE,
+        calculateAlignPos(SCHESEL_ALIGN, SCHESEL_WIDTH), (int)SCHEWIN_PADDING*1.2 + SCHEHEADER_HEIGHT,
+        SCHESEL_WIDTH, SCHESEL_HEIGHT,
+        viewer.body,
+        ID_SELECTOR,
+        hInst, NULL
+    );
+}
+static void applyChoices(){ // schedules ë°ì´í„°ë¡œë¶€í„° ì„ íƒì§€ ì ìš© ë° ìƒì„±
+    wchar_t label[20];
+    for(int i = 0; i < scheduleCount; i++){
+        swprintf(label, L"%dë²ˆ ì‹œê°„í‘œ", i+1);
+        SendMessageW(viewer.selector, CB_ADDSTRING, 0,
+            (LPARAM)label);
+    }
+}
+static void listenSelection(WPARAM wparam, LPARAM lparam){ // ì‹œê°„í‘œ ì„ íƒ ì´ë²¤íŠ¸ ë¦¬ìŠ¤ë„ˆ
+    // IDê°€ ì‹œê°„í‘œ ë“œë¡­ë‹¤ìš´ ëª©ë¡ì´ê³ (ID_SELECTOR)
+    // ì½¤ë³´ë°•ìŠ¤ í•­ëª© ë³€ê²½ ì´ë²¤íŠ¸ì¼ ê²½ìš°(CBN_SELCHANGE)
+    if(LOWORD(wparam) == (int)ID_SELECTOR && HIWORD(wparam) == CBN_SELCHANGE){
+        int idx = SendMessageW((HWND)lparam /* í•¸ë“¤ ê²Ÿ */, CB_GETCURSEL, 0, 0);
+        if(idx == CB_ERR) return;
+
+        // ì„ íƒëœ ë²ˆí˜¸ì— ë”°ë¥¸ ì‹œê°„í‘œ ë„ìš°ê¸°ë§Œ í•˜ë©´ ë
+        
+        // testcode
+        wchar_t selectedText[256];
+        SendMessageW((HWND)lparam, CB_GETLBTEXT, idx, (LPARAM)selectedText);  // ì„ íƒëœ í•­ëª©ì˜ í…ìŠ¤íŠ¸ë¥¼ ê°€ì ¸ì˜´
+
+        MessageBoxW(NULL, selectedText, L"ì„ íƒëœ ê°’", MB_OK);
+    }
 }
 
 
+static void initWindow(){
+    viewer.body = createOuterFrame();
+    viewer.header = createHeader();
+    viewer.selector = createSelector();
+    scheduleCount = 7;
+    applyChoices();
+}
+
+
+// ---------------------------
+// -------- win init ---------
+// ---------------------------
+
+
+
+
+// ---------------------------
+// -------- procedure --------
+// ---------------------------
 static LRESULT CALLBACK schedule_viewer_procedure(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam){
     switch(uMsg){
-        case WM_CREATE:
-            return 0;
-
-        case WM_DESTROY: // Ã¢ ´İ±â ÀÌº¥Æ®
-            PostQuitMessage(0); // ÇÁ·Î±×·¥ Á¾·á ¸Ş½ÃÁö Àü¼Û
+        case WM_CREATE: {
+            break;
+        }
+        case WM_DESTROY: // ì°½ ë‹«ê¸° ì´ë²¤íŠ¸
+            PostQuitMessage(0); // í”„ë¡œê·¸ë¨ ì¢…ë£Œ ë©”ì‹œì§€ ì „ì†¡
             return 0;
 
         case WM_PAINT:{
+            styleOuterFrame();
             styleHeader();
-            return 0;
+            break;
         }
+
+        case WM_INITDIALOG:
+            break;
+
 
         // case WM_SIZE:
         //     return 0;
 
+        case WM_COMMAND:
+            listenSelection(wParam, lParam);
+            break;
 
         case WM_SYSCOMMAND:
-            // ÃÖ´ë/ÃÖ¼ÒÈ­ ¸í·É ¹«½Ã
+            // ìµœëŒ€/ìµœì†Œí™” ëª…ë ¹ ë¬´ì‹œ
             if(wParam == SC_MAXIMIZE || wParam == SC_MINIMIZE)
                 return 0;
             break;
