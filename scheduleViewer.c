@@ -21,7 +21,11 @@ static struct {
     HWND body;           // 외부 틀
     HWND header;         // 헤더
     HWND selector;       // 생성된 시간표 선택창
-    HWND sche_container; // 생성된 시간표 컨테이너
+    HWND main;           // 시간표 뷰가 담길 섹션
+    HWND daynav;         // 시간표 상단 요일박스
+    HWND periodnav;      // 시간표 좌측 교시박스
+    HWND calender;       // 시간표 박스
+    HWND timenav;        // 시간표 우측 시간박스
 } viewer = { 0 };
 
 
@@ -104,13 +108,13 @@ static HWND createOuterFrame(){
     // 화면 우측 상단에 붙게 생성
     int screenWidth = GetSystemMetrics(SM_CXSCREEN);
     // int screenHeight = GetSystemMetrics(SM_CYSCREEN);
-    int scrollWidth = GetSystemMetrics(SM_CXVSCROLL); // 스크롤 너비
+    // int scrollWidth = GetSystemMetrics(SM_CXVSCROLL); // 스크롤 너비
 
     return CreateWindowW(
         SCHEWIN_CLASSNAME_W, SCHEWIN_TITLE,
         SCHEWIN_STYLE,
-        screenWidth - SCHEWIN_WIDTH - 1 - scrollWidth, 0,
-        SCHEWIN_WIDTH + scrollWidth, SCHEWIN_HEIGHT,
+        screenWidth - SCHEWIN_WIDTH - 1 /* - scrollWidth */, 0,
+        SCHEWIN_WIDTH /* + scrollWidth */, SCHEWIN_HEIGHT,
         NULL, NULL,
         hInst, NULL
     );
@@ -127,7 +131,7 @@ static HWND createHeader(){
         L"STATIC", SCHEHEADER_TITLE,
         SCHEHEADER_STYLE,
         SCHEWIN_PADDING, SCHEWIN_PADDING,
-        280, SCHEHEADER_HEIGHT,
+        SCHEWIN_WIDTH - SCHEWIN_PADDING*2, SCHEHEADER_HEIGHT,
         viewer.body, NULL,
         hInst, NULL
     );
@@ -141,6 +145,7 @@ static void styleHeader(){
 }
 
 static HWND createSelector(){
+    // 드롭다운형 단일 선택창
     return CreateWindowW(L"COMBOBOX",
         NULL,    // default text
         SCHESEL_STYLE,
@@ -159,6 +164,23 @@ static void applyChoices(){ // schedules 데이터로부터 선택지 적용 및
             (LPARAM)label);
     }
 }
+
+static HWND createCalenderContainer(){
+    // 사이즈는 남은 공간 전부
+    // 채우기 없음
+    int y = SCHEWIN_PADDING*2 + SCHEHEADER_HEIGHT + SCHESEL_HIDED_HEIGHT;
+    return CreateWindowW(L"STATIC", NULL,
+        SCHEMAIN_STYLE,
+        SCHEWIN_PADDING, y,
+        SCHEWIN_WIDTH - SCHEWIN_PADDING*2, SCHEWIN_HEIGHT - y - SCHEWIN_PADDING*2,
+        viewer.body,
+        NULL,
+        hInst, NULL
+    );
+}
+
+
+
 static void listenSelection(WPARAM wparam, LPARAM lparam){ // 시간표 선택 이벤트 리스너
     // ID가 시간표 드롭다운 목록이고(ID_SELECTOR)
     // 콤보박스 항목 변경 이벤트일 경우(CBN_SELCHANGE)
@@ -169,10 +191,10 @@ static void listenSelection(WPARAM wparam, LPARAM lparam){ // 시간표 선택 �
         // 선택된 번호에 따른 시간표 띄우기만 하면 끝
         
         // testcode
-        wchar_t selectedText[256];
-        SendMessageW((HWND)lparam, CB_GETLBTEXT, idx, (LPARAM)selectedText);  // 선택된 항목의 텍스트를 가져옴
+        // wchar_t selectedText[256];
+        // SendMessageW((HWND)lparam, CB_GETLBTEXT, idx, (LPARAM)selectedText);  // 선택된 항목의 텍스트를 가져옴
 
-        MessageBoxW(NULL, selectedText, L"선택된 값", MB_OK);
+        // MessageBoxW(NULL, selectedText, L"선택된 값", MB_OK);
     }
 }
 
@@ -180,9 +202,11 @@ static void listenSelection(WPARAM wparam, LPARAM lparam){ // 시간표 선택 �
 static void initWindow(){
     viewer.body = createOuterFrame();
     viewer.header = createHeader();
+
     viewer.selector = createSelector();
-    scheduleCount = 7;
     applyChoices();
+
+    viewer.main = createCalenderContainer();
 }
 
 
@@ -208,6 +232,10 @@ static LRESULT CALLBACK schedule_viewer_procedure(HWND hwnd, UINT uMsg, WPARAM w
         case WM_PAINT:{
             styleOuterFrame();
             styleHeader();
+            PAINTSTRUCT ps;
+            HDC hdc = BeginPaint(viewer.main, &ps);
+            roundRect(hdc, ps, RGB(229, 228, 226), RGB(229, 228, 226), 20);
+            EndPaint(viewer.main, &ps);
             break;
         }
 

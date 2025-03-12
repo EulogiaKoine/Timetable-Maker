@@ -73,19 +73,24 @@ void closeWindow2(void);
 
 // 화면 크기 옵션
 // 초기 설정은 안드로이드 위젯 느낌으로 3:4 or 9:16 or 9:20
-#define SCHEWIN_WIDTH 300 // 가로; 스크롤 반영
-#define SCHEWIN_HEIGHT 400 // 세로
+#define SCHEWIN_WIDTH 600 // 가로; 스크롤 반영
+#define SCHEWIN_HEIGHT 800 // 세로
 #define SCHEWIN_PADDING 10 // 최외곽 패딩
 #define SCHEHEADER_HEIGHT 50 // 헤더 높이
 #define SCHESEL_WIDTH 200 // 선택창 가로
-#define SCHESEL_HEIGHT 100 // 선택창 세로, 50 미만이면 드롭다운이 안됨
+#define SCHESEL_HIDED_HEIGHT 21 // 드롭다운이 숨겨져 있을 때의 높이(변경 불가)
+#define SCHESEL_HEIGHT 100 // 선택창 세로(전체); 50 미만이면 드롭다운이 안됨
+#define CAL_DAYNAV_HEIGHT 40 // 요일 섹션 높이
+#define CAL_PERIOD_RATE 0.2 // 교시 섹션 가로 비율
+#define CAL_TIME_RATE 0.2 // 시간 섹션 가로 비율
+#define CAL_GRID_GAP 10 // 메인 섹션 요소들 간 간격
+
 
 // 화면 스타일 옵션
 #define SCHEWIN_STYLE (WS_CAPTION \
                         | WS_SYSMENU \
                         | WS_MINIMIZE \
                         | WS_VISIBLE \
-                        | WS_VSCROLL \
                         | WS_TABSTOP \
                         | WS_OVERLAPPED)
 #define SCHEWIN_BGCOLOR (HBRUSH)(COLOR_WINDOW+1)
@@ -95,8 +100,12 @@ void closeWindow2(void);
 #define SCHEHEADER_ROUNDNESS 20  // 괄호 없이, 20px*20px만큼 꺾이도록
 #define SCHESEL_STYLE (WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST | WS_VSCROLL) // combobox-dropdownlist: single selection
 #define SCHESEL_ALIGN 1 // 수평 정렬 옵션; 0=왼쪽, 1=가운데, 2=오른쪽
+#define SCHEMAIN_STYLE (WS_VISIBLE | WS_CHILD)
+// #define SCHEMAIN_COLOR RGB(229, 228, 226) // Platinum
 
-// control components' ids
+// 시간표 부분 설정값
+
+// 컨트롤 요소 ID, 접두사 ID_ 붙이기
 #define ID_SELECTOR (HMENU)1001
 
 // --------------------------------
