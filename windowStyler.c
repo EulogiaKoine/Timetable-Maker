@@ -16,15 +16,15 @@ void roundRect(HDC hdc, PAINTSTRUCT ps, COLORREF fillColor, COLORREF borderColor
     DeleteObject(hPen);
 }
 
-void drawText(HDC hdc, PAINTSTRUCT ps, LPCWSTR text, COLORREF color, bool horizontal_align, bool vertical_align, bool linebreak){
+void drawText(HDC hdc, PAINTSTRUCT ps, LPCWSTR text, int fontSize, COLORREF color, bool horizontal_align, bool vertical_align, bool linebreak){
     SetBkMode(hdc, TRANSPARENT);
     SetTextColor(hdc, color);
 
     HFONT hFont = CreateFontW(
-        24,                   // 텍스트의 높이 (폰트 크기)  -> 글씨가 위아래로 뭉개지지 않게 방지
-        0,                    // 너비는 기본값
-        0,                    // 회전 각도는 기본값
-        0,                    // 기울이기 각도
+        fontSize,                   // 텍스트의 높이 (폰트 크기)  -> 글씨가 위아래로 뭉개지지 않게 방지
+        0,                    // 너비 기본값
+        0,                    // 회전 각도 기본값
+        0,                    // 기울임 기본값
         FW_NORMAL,            // 폰트 두께(기본값)
         FALSE, FALSE, FALSE,  // 기울임, 밑줄, 취소선 없음
         DEFAULT_CHARSET,      // 문자셋(기본값: ANSI_DEFAULT)

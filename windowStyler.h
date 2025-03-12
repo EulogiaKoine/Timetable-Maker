@@ -17,6 +17,7 @@ void roundRect(
 void drawText(
     HDC hdc, PAINTSTRUCT ps,                    // 그릴 요소의 그리기용 컨텍스트 핸들과 그 정보
     LPCWSTR text,                               // 그릴 텍스트
+    int fontSize,                               // 텍스트 크기
     COLORREF color,                             // 텍스트 색깔
     bool horizontal_align, bool vertical_align, // 수평 가운데 정렬, 수직 가운데 정렬 여부
     bool linebreak                              // 자동 줄바꿈 여부

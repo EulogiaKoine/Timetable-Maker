@@ -140,7 +140,7 @@ static void styleHeader(){
     PAINTSTRUCT ps;
     HDC hdc = BeginPaint(viewer.header, &ps);
     roundRect(hdc, ps, SCHEHEADER_COLOR, SCHEHEADER_BORDER_COLOR, SCHEHEADER_ROUNDNESS);
-    drawText(hdc, ps, SCHEHEADER_TITLE, RGB(0, 0, 0), true, true, false);
+    drawText(hdc, ps, SCHEHEADER_TITLE, SCHEHEADER_FONTSIZE, RGB(0, 0, 0), true, true, false);
     EndPaint(viewer.header, &ps);
 }
 
@@ -177,6 +177,66 @@ static HWND createCalenderContainer(){
         NULL,
         hInst, NULL
     );
+}
+static void styleCalenderContainer(){
+    PAINTSTRUCT ps;
+    HDC hdc = BeginPaint(viewer.main, &ps);
+    roundRect(hdc, ps, SCHEMAIN_COLOR, SCHEMAIN_COLOR, SCHEMAIN_ROUNDNESS);
+    EndPaint(viewer.main, &ps);
+}
+
+// ~ ~ ~ 캘린더 섹션(main) ~ ~ ~
+// 윈도우는 모두 viewer.main의 자식
+
+// schedules를 바탕으로 필요한 요일 범위 반환(dayRange값 변경) -> [시작, 끝]
+static void calculateRequiredDays(char dayRange[2]){
+    int min = DEFAULT_START_DAY; // 최소 시작
+    int max = DEFAULT_END_DAY; // 최대 끝
+    for(int i = 0, j, day; i < scheduleCount; i++)
+        for(j = 0; j < schedules[i].count; j++){
+            day = schedules[i].courses[j].day;
+            if(day < min)
+                min = day;
+            if(day > max)
+                max = day;
+        }
+    dayRange[0] = min;
+    dayRange[1] = max;
+}
+// schedules를 바탕으로 필요한 시간 범위 반환(timeRange값 변경) -> [시작, 끝]
+static void calculateRequiredTime(int timeRange[2]){
+    int min = DEFAULT_START_TIME;
+    int max = DEFAULT_END_TIME;
+    Subject* temp;
+    for(int i = 0, j; i < scheduleCount; i++){
+        for(j = 0; j < schedules[i].count; j++){
+            temp = &schedules[i].courses[j];
+            if(temp->startTime < min)
+                min = temp->startTime;
+            if(temp->endTime > max)
+                max = temp->endTime;
+        }
+    }
+    timeRange[0] = min;
+    timeRange[1] = max;
+}
+// timeRange를 교시 범위로 변환
+static void convertTimeRangeToPeriodRange(int timeRange[2], int periodRange[2]){
+    periodRange[0] = (timeRange[0] - PERIOD_OFFSET)/60 + 1;
+    periodRange[1] = (timeRange[1] - PERIOD_OFFSET)/60 + 1;
+}
+
+// 좌측 교시 섹션
+static HWND createPeriodNav(){
+    
+}
+static HWND createDayNav(){
+    // HWND container = CreateWindowW(L"STATIC", NULL,
+    //     WS_CHILD | WS_VISIBLE,
+    //     )
+
+    char range[2];
+    calculateRequiredDays(range);
 }
 
 
@@ -232,10 +292,6 @@ static LRESULT CALLBACK schedule_viewer_procedure(HWND hwnd, UINT uMsg, WPARAM w
         case WM_PAINT:{
             styleOuterFrame();
             styleHeader();
-            PAINTSTRUCT ps;
-            HDC hdc = BeginPaint(viewer.main, &ps);
-            roundRect(hdc, ps, RGB(229, 228, 226), RGB(229, 228, 226), 20);
-            EndPaint(viewer.main, &ps);
             break;
         }
 
