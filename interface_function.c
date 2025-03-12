@@ -182,7 +182,7 @@ void SaveData() {
 
     // 파일 닫기
     fclose(file);
-    MessageBoxW(NULL, L"데이터가 save.txt 파일에 저장되었습니다.", L"알림", MB_OK);
+    MessageBoxW(NULL, L"저장되었습니다!", L"알림", MB_OK);
 }
 
 // 데이터 저장 함수
