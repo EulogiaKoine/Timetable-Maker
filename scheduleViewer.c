@@ -263,6 +263,23 @@ static void markPeriods(Schedule template){ // 교시 표시; 표시할 시간�
         );
     }
 }
+static void stylePeriods(){
+    // 바탕(섹션 시각화용)
+    PAINTSTRUCT ps;
+    HDC hdc = BeginPaint(viewer.periodnav, &ps);
+    roundRect(hdc, ps, RGB(50, 50, 50), RGB(50, 50, 50), 30);
+    EndPaint(viewer.periodnav, &ps);
+
+    // 글씨
+    HWND htxt = NULL; wchar_t title[20];
+    while((htxt = FindWindowExW(viewer.periodnav, htxt, L"STATIC", NULL)) != NULL){
+        hdc = BeginPaint(htxt, &ps);
+        GetWindowTextW(htxt, title, 20);
+        drawText(hdc, ps, title, 14, RGB(255, 255, 255),
+            true, true, false);
+        EndPaint(htxt, &ps);
+    }
+}
 
 
 static HWND createDayNav(Schedule template){
@@ -303,6 +320,8 @@ static void initWindow(){
 
     viewer.main = createCalenderContainer();
     viewer.periodnav = createPeriodNav();
+
+    // 테스트코드
     Schedule empty = {0};
     markPeriods(empty);
 }
@@ -330,6 +349,7 @@ static LRESULT CALLBACK schedule_viewer_procedure(HWND hwnd, UINT uMsg, WPARAM w
         case WM_PAINT:{
             styleOuterFrame();
             styleHeader();
+            // stylePeriods();
             break;
         }
 
