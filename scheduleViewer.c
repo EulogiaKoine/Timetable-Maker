@@ -2,10 +2,10 @@
 #include "windowStyler.h"
 
 
-// 정적 스케줄 목록 관리
-static Schedule* schedules = NULL; // 전달된 시간표 데이터
-static int scheduleCount = 0;      // 시간표 개수
-// 외부에서 위 변수 갱신하는 용
+// ???? ?????? ??? ????
+static Schedule* schedules = NULL; // ????? ?ð?? ??????
+static int scheduleCount = 0;      // ?ð?? ????
+// ??ο??? ?? ???? ??????? ??
 void applySchedules(Schedule* _input, int count){
     schedules = _input;
     scheduleCount = count;
@@ -16,11 +16,11 @@ void applySchedules(Schedule* _input, int count){
 // ---------- window ---------
 // ---------------------------
 
-// 내부적인 화면 관리용 구조체
+// ???????? ??? ?????? ?????
 static struct {
-    HWND body;           // 외부 틀
-    HWND header;         // 헤더
-    HWND sche_container; // 생성된 시간표 컨테이너
+    HWND body;           // ??? ?
+    HWND header;         // ???
+    HWND sche_container; // ?????? ?ð?? ???????
 } viewer = { false };
 
 
@@ -70,7 +70,7 @@ static void registerWindow(){
     wc.lpfnWndProc = schedule_viewer_procedure;
     wc.hInstance = hInst;
     wc.lpszClassName = SCHEWIN_CLASSNAME_W;
-    // 아래는 기본값; 선택사항
+    // ????? ????; ???????
     // wc.hIcon = LoadIcon(NULL, IDI_APPLICATION);
     // wc.hCursor = LoadCursor(NULL, IDC_ARROW);
     wc.hbrBackground = SCHEWIN_BGCOLOR;
@@ -80,10 +80,10 @@ static void registerWindow(){
 }
 
 static HWND createOuterFrame(){
-    // 화면 우측 상단에 붙게 생성
+    // ??? ???? ???? ??? ????
     int screenWidth = GetSystemMetrics(SM_CXSCREEN);
     // int screenHeight = GetSystemMetrics(SM_CYSCREEN);
-    int scrollWidth = GetSystemMetrics(SM_CXVSCROLL); // 스크롤 너비
+    int scrollWidth = GetSystemMetrics(SM_CXVSCROLL); // ????? ???
 
     return CreateWindowW(
         SCHEWIN_CLASSNAME_W, SCHEWIN_TITLE,
@@ -121,8 +121,8 @@ static LRESULT CALLBACK schedule_viewer_procedure(HWND hwnd, UINT uMsg, WPARAM w
         case WM_CREATE:
             return 0;
 
-        case WM_DESTROY: // 창 닫기 이벤트
-            PostQuitMessage(0); // 프로그램 종료 메시지 전송
+        case WM_DESTROY: // ? ??? ????
+            PostQuitMessage(0); // ???α?? ???? ????? ????
             return 0;
 
         case WM_PAINT:{
@@ -135,7 +135,7 @@ static LRESULT CALLBACK schedule_viewer_procedure(HWND hwnd, UINT uMsg, WPARAM w
 
 
         case WM_SYSCOMMAND:
-            // 최대/최소화 명령 무시
+            // ???/???? ???? ????
             if(wParam == SC_MAXIMIZE || wParam == SC_MINIMIZE)
                 return 0;
             break;
