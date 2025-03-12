@@ -189,33 +189,30 @@ static void styleCalenderContainer(){
 // 윈도우는 모두 viewer.main의 자식
 
 // schedules를 바탕으로 필요한 요일 범위 반환(dayRange값 변경) -> [시작, 끝]
-static void calculateRequiredDays(char dayRange[2]){
+static void calculateRequiredDays(Schedule template, char dayRange[2]){
     int min = DEFAULT_START_DAY; // 최소 시작
     int max = DEFAULT_END_DAY; // 최대 끝
-    for(int i = 0, j, day; i < scheduleCount; i++)
-        for(j = 0; j < schedules[i].count; j++){
-            day = schedules[i].courses[j].day;
-            if(day < min)
-                min = day;
-            if(day > max)
-                max = day;
-        }
+    for(int i = 0, day; i < template.count; i++){
+        day = template.courses[i].day;
+        if(day < min)
+            min = day;
+        if(day > max)
+            max = day;
+    }
     dayRange[0] = min;
     dayRange[1] = max;
 }
 // schedules를 바탕으로 필요한 시간 범위 반환(timeRange값 변경) -> [시작, 끝]
-static void calculateRequiredTime(int timeRange[2]){
+static void calculateRequiredTime(Schedule template, int timeRange[2]){
     int min = DEFAULT_START_TIME;
     int max = DEFAULT_END_TIME;
     Subject* temp;
-    for(int i = 0, j; i < scheduleCount; i++){
-        for(j = 0; j < schedules[i].count; j++){
-            temp = &schedules[i].courses[j];
-            if(temp->startTime < min)
-                min = temp->startTime;
-            if(temp->endTime > max)
-                max = temp->endTime;
-        }
+    for(int i = 0; i < template.count; i++){
+        temp = &template.courses[i];
+        if(temp->startTime < min)
+            min = temp->startTime;
+        if(temp->endTime > max)
+            max = temp->endTime;
     }
     timeRange[0] = min;
     timeRange[1] = max;
@@ -240,11 +237,11 @@ static HWND createPeriodNav(){
         hInst, NULL
     );
 }
-static void markPeriods(){ // 교시 표시
+static void markPeriods(Schedule template){ // 교시 표시; 표시할 시간표 기준으로 작동
     if(viewer.periodnav == NULL) return;
 
     int range[2];
-    calculateRequiredTime(range);
+    calculateRequiredTime(template, range);
     convertTimeRangeToPeriodRange(range, range); // 내부 로직을 알아야 가능한 편법이지만 뭐 어때
     
     int periodCount = range[1]-range[0]+1;
@@ -268,13 +265,13 @@ static void markPeriods(){ // 교시 표시
 }
 
 
-static HWND createDayNav(){
+static HWND createDayNav(Schedule template){
     // HWND container = CreateWindowW(L"STATIC", NULL,
     //     WS_CHILD | WS_VISIBLE,
     //     )
 
     char range[2];
-    calculateRequiredDays(range);
+    calculateRequiredDays(template, range);
 }
 
 
@@ -306,7 +303,8 @@ static void initWindow(){
 
     viewer.main = createCalenderContainer();
     viewer.periodnav = createPeriodNav();
-    markPeriods();
+    Schedule empty = {0};
+    markPeriods(empty);
 }
 
 
