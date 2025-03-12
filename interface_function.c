@@ -61,7 +61,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
             RemoveRow(index, hWnd);
         }
         else if (LOWORD(wParam) == BTN_EXIT) {  // 🔹 시간표생성 버튼 클릭
-            SaveData(); // 데이터 저장
+            //SaveData(); // txt파일 데이터 저장
             Struct_Saved_Data(); //데이터 저장
             PostQuitMessage(0);  // 윈도우 종료
         }
