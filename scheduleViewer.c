@@ -157,7 +157,7 @@ static HWND createSelector(){
     );
 }
 static void applyChoices(){ // schedules 데이터로부터 선택지 적용 및 생성
-    wchar_t label[20];
+    wchar_t label[20] = L"";
     for(int i = 0; i < scheduleCount; i++){
         swprintf(label, L"%d번 시간표", i+1);
         SendMessageW(viewer.selector, CB_ADDSTRING, 0,
@@ -228,8 +228,46 @@ static void convertTimeRangeToPeriodRange(int timeRange[2], int periodRange[2]){
 
 // 좌측 교시 섹션
 static HWND createPeriodNav(){
-    
+    RECT rect;
+    GetWindowRect(viewer.main, &rect);
+
+    return CreateWindowW(L"STATIC", NULL,
+        WS_CHILD | WS_VISIBLE,
+        0, 0, // main 섹션 내의 상대좌표
+        (rect.right - rect.left) * SCHEMAIN_PERIOD_RATE, rect.bottom - rect.top,
+        viewer.main,
+        NULL,
+        hInst, NULL
+    );
 }
+static void markPeriods(){ // 교시 표시
+    if(viewer.periodnav == NULL) return;
+
+    int range[2];
+    calculateRequiredTime(range);
+    convertTimeRangeToPeriodRange(range, range); // 내부 로직을 알아야 가능한 편법이지만 뭐 어때
+    
+    int periodCount = range[1]-range[0]+1;
+    RECT rect;
+    GetWindowRect(viewer.main, &rect);
+    int offsetY = SCHEMAIN_DAYNAV_HEIGHT + SCHEMAIN_GAP;
+    int blockHeight = (rect.bottom - rect.top - offsetY)/periodCount;
+
+    wchar_t periodName[10] = L"";
+    for(int i = 0; i < periodCount; i++){
+        swprintf(periodName, L"%d교시", i+1);
+        CreateWindowW(L"STATIC", (LPCWSTR)periodName,
+            WS_CHILD | WS_VISIBLE | SS_RIGHT,
+            0, offsetY + blockHeight*i,
+            (rect.right - rect.left) * SCHEMAIN_PERIOD_RATE, blockHeight,
+            viewer.periodnav,
+            NULL,
+            hInst, NULL
+        );
+    }
+}
+
+
 static HWND createDayNav(){
     // HWND container = CreateWindowW(L"STATIC", NULL,
     //     WS_CHILD | WS_VISIBLE,
@@ -267,6 +305,8 @@ static void initWindow(){
     applyChoices();
 
     viewer.main = createCalenderContainer();
+    viewer.periodnav = createPeriodNav();
+    markPeriods();
 }
 
 

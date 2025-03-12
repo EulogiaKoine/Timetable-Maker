@@ -81,7 +81,7 @@ void closeWindow2(void);
 #define SCHESEL_WIDTH 200 // 선택창 가로
 #define SCHESEL_HIDED_HEIGHT 21 // 드롭다운이 숨겨져 있을 때의 높이(변경 불가)
 #define SCHESEL_HEIGHT 100 // 선택창 세로(전체); 50 미만이면 드롭다운이 안됨
-#define SCHEMAIN_DAYNAV_HEIGHT 40 // 요일 섹션 높이
+#define SCHEMAIN_DAYNAV_HEIGHT 100 // 요일 섹션 높이
 #define SCHEMAIN_PERIOD_RATE 0.2 // 교시 섹션 가로 비율
 #define SCHEMAIN_TIME_RATE 0.2 // 시간 섹션 가로 비율
 #define SCHEMAIN_GAP 10 // 메인 섹션 요소들 간 간격
@@ -113,6 +113,7 @@ void closeWindow2(void);
 #define SCHEMAIN_STYLE (WS_VISIBLE | WS_CHILD)
 #define SCHEMAIN_COLOR RGB(229, 228, 226) // Platinum
 #define SCHEMAIN_ROUNDNESS 20
+
 
 // 시간표 부분 설정값
 // 일단 에브리타임과 동일
