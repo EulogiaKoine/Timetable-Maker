@@ -1,4 +1,5 @@
 #include "interface_function.h"
+#include "windowStyler.h"
 
 int rowCount = 0;         // 현재 추가된 행 수
 
@@ -45,7 +46,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
             10, 320, 50, 30, hWnd, (HMENU)BTN_SAVE, (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE), NULL);
         // "시간표 생성" 버튼 생성 -> 윈도우창 종료역할도 함
         hButtonExit = CreateWindowW(L"BUTTON", L"시간표 생성", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
-            180, 320, 100, 30, hWnd, (HMENU)BTN_EXIT, (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE), NULL);
+            350, 320, 100, 30, hWnd, (HMENU)BTN_EXIT, (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE), NULL);
         break;
 
     case WM_COMMAND: // 버튼 클릭 등 명령 처리
@@ -63,7 +64,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
         else if (LOWORD(wParam) == BTN_EXIT) {  // 🔹 시간표생성 버튼 클릭
             SaveData(); // 데이터 저장
             Struct_Saved_Data(); //데이터 저장
-            PostQuitMessage(0);  // 윈도우 종료
+            //PostQuitMessage(0);  // 윈도우 종료
+            DestroyWindow(hWnd);
         }
         break;
 
@@ -180,7 +182,6 @@ void SaveData() {
 
     // 파일 닫기
     fclose(file);
-
     MessageBoxW(NULL, L"데이터가 save.txt 파일에 저장되었습니다.", L"알림", MB_OK);
 }
 
@@ -194,6 +195,8 @@ void Struct_Saved_Data() {
         GetWindowTextW(hEdit[i][3], courseData[i].endTime, sizeof(courseData[i].endTime));     // 끝시간 저장
     }
 }
+
+
 
 /*
 WinMain 함수:
