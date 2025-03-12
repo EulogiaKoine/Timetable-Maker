@@ -281,6 +281,70 @@ static void stylePeriods(){
     }
 }
 
+// 가운데 캘린더 섹션
+// 어쩌다 보니 요일도 포함
+static HWND createCalenderBox(){
+    RECT rect;
+    GetClientRect(viewer.main, &rect);
+
+    int x = (rect.right - rect.left) * SCHEMAIN_PERIOD_RATE + SCHEMAIN_GAP;
+    int width = (rect.right - rect.left) * (1 - SCHEMAIN_PERIOD_RATE - SCHEMAIN_TIME_RATE) - SCHEMAIN_GAP*2;
+    return CreateWindowW(L"STATIC", NULL,
+        WS_CHILD | WS_VISIBLE,
+        x, 0,
+        width, rect.bottom - rect.top,
+        viewer.main,
+        NULL,
+        hInst, NULL
+    );
+}
+
+// 우측 시간 섹션
+static HWND createTimeNav(){
+    RECT rect;
+    GetClientRect(viewer.main, &rect);
+    int width = (rect.right - rect.left) * SCHEMAIN_TIME_RATE;
+
+    return CreateWindowW(L"STATIC", NULL,
+        WS_CHILD | WS_VISIBLE,
+        rect.right - width, 0, // main 섹션 내의 상대좌표
+        width, rect.bottom - rect.top,
+        viewer.main,
+        NULL,
+        hInst, NULL
+    );
+}
+static void markTimes(Schedule template){
+    if(viewer.timenav == NULL) return;
+
+    int range[2];
+    calculateRequiredTime(template, range);
+    range[0] /= 60;
+    range[1] = range[1]/60 + 1; // 어차피 시간 단위로 쓸 거
+    
+    int timeCount = range[1]-range[0]+1;
+    RECT rect;
+    GetWindowRect(viewer.main, &rect);
+    int offsetY = SCHEMAIN_DAYNAV_HEIGHT + SCHEMAIN_GAP;
+    int blockHeight = (rect.bottom - rect.top - offsetY)/timeCount;
+
+    wchar_t timeName[20] = L"";
+    for(int i = range[0]; i <= range[1]; i++){
+        if(i < 12)
+            swprintf(timeName, L"오전 %d시", i);
+        else
+            swprintf(timeName, L"오후 %d시", i);
+        CreateWindowW(L"STATIC", (LPCWSTR)timeName,
+            WS_CHILD | WS_VISIBLE | SS_LEFT,
+            0, offsetY + blockHeight*(i-range[0]),
+            (rect.right - rect.left) * SCHEMAIN_TIME_RATE, blockHeight,
+            viewer.timenav,
+            NULL,
+            hInst, NULL
+        );
+    }
+}
+
 
 static HWND createDayNav(Schedule template){
     // HWND container = CreateWindowW(L"STATIC", NULL,
@@ -320,10 +384,13 @@ static void initWindow(){
 
     viewer.main = createCalenderContainer();
     viewer.periodnav = createPeriodNav();
+    viewer.calender = createCalenderBox();
+    viewer.timenav = createTimeNav();
 
     // 테스트코드
     Schedule empty = {0};
     markPeriods(empty);
+    markTimes(empty);
 }
 
 
@@ -350,6 +417,12 @@ static LRESULT CALLBACK schedule_viewer_procedure(HWND hwnd, UINT uMsg, WPARAM w
             styleOuterFrame();
             styleHeader();
             // stylePeriods();
+
+            styleCalenderContainer();
+            PAINTSTRUCT ps;
+            HDC hdc = BeginPaint(viewer.calender, &ps);
+            roundRect(hdc, ps, RGB(255, 255, 255), RGB(255, 255, 255), 10);
+            EndPaint(viewer.calender, &ps);
             break;
         }
 
