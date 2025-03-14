@@ -84,7 +84,7 @@ void closeWindow2(void);
 #define SCHEMAIN_DAYNAV_HEIGHT 100 // 요일 섹션 높이
 #define SCHEMAIN_PERIOD_RATE 0.2 // 교시 섹션 가로 비율
 #define SCHEMAIN_TIME_RATE 0.2 // 시간 섹션 가로 비율
-#define SCHEMAIN_GAP 10 // 메인 섹션 요소들 간 간격
+#define SCHEMAIN_GAP 0 // 메인 섹션 요소들 간 간격
 // 여러 번 쓰는 계산식이라 그냥 매크로로
 #define SCHEMAIN_CAL_XPOS \
     ((SCHEWIN_PADDING + ))
@@ -113,6 +113,16 @@ void closeWindow2(void);
 #define SCHEMAIN_STYLE (WS_VISIBLE | WS_CHILD)
 #define SCHEMAIN_COLOR RGB(229, 228, 226) // Platinum
 #define SCHEMAIN_ROUNDNESS 20
+
+#define SCHEMAIN_PERIOD_COLOR RGB(255,255,255)
+#define SCHEMAIN_PERIOD_ROUNDNESS SCHEMAIN_ROUNDNESS*1.2
+#define SCHEMAIN_PERIOD_FONTSIZE 16
+#define SCHEMAIN_PERIOD_FONTCOLOR RGB(0,0,0)
+
+#define SCHEMAIN_TIME_COLOR RGB(255,255,255)
+#define SCHEMAIN_TIME_ROUNDNESS SCHEMAIN_ROUNDNESS*1.2
+#define SCHEMAIN_TIME_FONTSIZE 16
+#define SCHEMAIN_TIME_FONTCOLOR RGB(0,0,0)
 
 
 // 시간표 부분 설정값

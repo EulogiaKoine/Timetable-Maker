@@ -267,7 +267,7 @@ static void stylePeriods(){
     // 바탕(섹션 시각화용)
     PAINTSTRUCT ps;
     HDC hdc = BeginPaint(viewer.periodnav, &ps);
-    roundRect(hdc, ps, RGB(50, 50, 50), RGB(50, 50, 50), 30);
+    roundRect(hdc, ps, SCHEMAIN_PERIOD_COLOR, SCHEMAIN_PERIOD_COLOR, SCHEMAIN_PERIOD_ROUNDNESS);
     EndPaint(viewer.periodnav, &ps);
 
     // 글씨
@@ -275,7 +275,7 @@ static void stylePeriods(){
     while((htxt = FindWindowExW(viewer.periodnav, htxt, L"STATIC", NULL)) != NULL){
         hdc = BeginPaint(htxt, &ps);
         GetWindowTextW(htxt, title, 20);
-        drawText(hdc, ps, title, 14, RGB(255, 255, 255),
+        drawText(hdc, ps, title, SCHEMAIN_PERIOD_FONTSIZE, SCHEMAIN_PERIOD_FONTCOLOR,
             true, true, false);
         EndPaint(htxt, &ps);
     }
@@ -342,6 +342,23 @@ static void markTimes(Schedule template){
             NULL,
             hInst, NULL
         );
+    }
+}
+static void styleTime(){
+    // 바탕(섹션 시각화용)
+    PAINTSTRUCT ps;
+    HDC hdc = BeginPaint(viewer.timenav, &ps);
+    roundRect(hdc, ps, SCHEMAIN_TIME_COLOR, SCHEMAIN_TIME_COLOR, SCHEMAIN_TIME_ROUNDNESS);
+    EndPaint(viewer.timenav, &ps);
+
+    // 글씨
+    HWND htxt = NULL; wchar_t title[20];
+    while((htxt = FindWindowExW(viewer.timenav, htxt, L"STATIC", NULL)) != NULL){
+        hdc = BeginPaint(htxt, &ps);
+        GetWindowTextW(htxt, title, 20);
+        drawText(hdc, ps, title, SCHEMAIN_TIME_FONTSIZE, SCHEMAIN_TIME_FONTCOLOR,
+            true, true, false);
+        EndPaint(htxt, &ps);
     }
 }
 
@@ -419,10 +436,9 @@ static LRESULT CALLBACK schedule_viewer_procedure(HWND hwnd, UINT uMsg, WPARAM w
             // stylePeriods();
 
             styleCalenderContainer();
-            PAINTSTRUCT ps;
-            HDC hdc = BeginPaint(viewer.calender, &ps);
-            roundRect(hdc, ps, RGB(255, 255, 255), RGB(255, 255, 255), 10);
-            EndPaint(viewer.calender, &ps);
+            stylePeriods();
+            styleTime();
+
             break;
         }
 
