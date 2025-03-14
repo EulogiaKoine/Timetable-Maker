@@ -363,13 +363,49 @@ static void styleTime(){
 }
 
 
-static HWND createDayNav(Schedule template){
-    // HWND container = CreateWindowW(L"STATIC", NULL,
-    //     WS_CHILD | WS_VISIBLE,
-    //     )
+static HWND createDayNav(){
+    RECT rect;
+    GetClientRect(viewer.calender, &rect);
+
+    return CreateWindowW(L"STATIC", NULL,
+        WS_CHILD | WS_VISIBLE,
+        0, 0,
+        rect.right - rect.left, SCHEMAIN_DAYNAV_HEIGHT,
+        viewer.calender,
+        NULL,
+        hInst, NULL
+    );
+}
+static void markDays(Schedule template){
+    if(viewer.daynav == NULL) return;
+
+    static wchar_t* dayNames_eng[7] = {
+        L"Sun", L"Mon", L"Tues", L"Wed", L"Thur", L"Fri", L"Sat"
+    };
+    static wchar_t* dayNames_kor[7] = {
+        L"일", L"월", L"화", L"수", L"목", L"금", L"토"
+    };
 
     char range[2];
     calculateRequiredDays(template, range);
+    RECT rt;
+    GetWindowRect(viewer.daynav, &rt);
+    int width = (rt.right - rt.left)/5;
+    int count = range[1] - range[0] + 1;
+    wchar_t dayName[20] = L"";
+    wchar_t** dayNamespace = (SCHEMAIN_DAYNAV_LANG==0? dayNames_eng: dayNames_kor);
+    for(int i = 0; i < count; i++){
+        swprintf(dayName, L"%ws", dayNamespace[range[0]+i]);
+        CreateWindowW(L"STATIC", dayName,
+            WS_CHILD | WS_VISIBLE | SS_CENTER,
+            width * i, SCHEMAIN_DAYNAV_HEIGHT - SCHEMAIN_DAYNAV_FONTSIZE,
+            width, SCHEMAIN_DAYNAV_FONTSIZE,
+            viewer.daynav,
+            NULL,
+            hInst, NULL
+        );
+        wprintf(L"%ws\n", dayNamespace[i+range[0]]);
+    }
 }
 
 
@@ -403,11 +439,13 @@ static void initWindow(){
     viewer.periodnav = createPeriodNav();
     viewer.calender = createCalenderBox();
     viewer.timenav = createTimeNav();
+    viewer.daynav = createDayNav();
 
     // 테스트코드
     Schedule empty = {0};
     markPeriods(empty);
     markTimes(empty);
+    markDays(empty);
 }
 
 

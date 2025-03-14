@@ -124,11 +124,14 @@ void closeWindow2(void);
 #define SCHEMAIN_TIME_FONTSIZE 16
 #define SCHEMAIN_TIME_FONTCOLOR RGB(0,0,0)
 
+#define SCHEMAIN_DAYNAV_LANG 0 // 0=eng, 1=kor
+#define SCHEMAIN_DAYNAV_FONTSIZE 14
+
 
 // 시간표 부분 설정값
 // 일단 에브리타임과 동일
-#define DEFAULT_START_DAY 0     // 기본 시작 요일 = 월
-#define DEFAULT_END_DAY 4       // 기본 끝 요일 = 금
+#define DEFAULT_START_DAY 1     // 기본 시작 요일 = 월
+#define DEFAULT_END_DAY 5       // 기본 끝 요일 = 금
 #define DEFAULT_START_TIME 7*60 // 기본 시작 시각 = 7 a.m.
 #define DEFAULT_END_TIME 16*60  // 기본 끝 시각 = 4 p.m.
 #define PERIOD_OFFSET 9*60      // 1교시 시작시각; 1시간 단위로 +-됨
