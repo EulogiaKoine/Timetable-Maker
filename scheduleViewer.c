@@ -454,7 +454,7 @@ static void renderCalender(Schedule template){
         course = &template.courses[i];
         if(course == NULL) continue;
         wcscpy(subInfo, course->name);
-        HWND t = CreateWindowW(L"STATIC", (LPCWSTR)subInfo,
+        CreateWindowW(L"STATIC", (LPCWSTR)subInfo,
             WS_CHILD | WS_VISIBLE | SS_CENTER,
             blockWidth * (course->day - days[0]), yOffset + blockHeightPerMinute * (course->startTime - times[0]),
             blockWidth, blockHeightPerMinute * (course->endTime - course->startTime),
@@ -462,11 +462,31 @@ static void renderCalender(Schedule template){
             NULL,
             hInst, NULL
         );
-        RECT r; GetClientRect(t, &r);
-        printf("(%d, %d) %lf (%d, %d)\n", r.left, r.right, blockHeightPerMinute, r.top, r.bottom);
     }
 }
-// 캘린더 
+static COLORREF generateRandomColor(){
+    static bool init = true;
+    if(init){
+        srand(time(NULL));
+        init = false;
+    }
+    return RGB(rand()%100+156, rand()%100+156, rand()%100+156);
+}
+static void styleCalender(){
+    if(viewer.calender == NULL) return;
+
+    // 첫 요소(daynav) 제외한 블럭들 대상
+    HWND hsub = FindWindowExW(viewer.calender, NULL, L"STATIC", NULL); wchar_t title[20];
+    PAINTSTRUCT ps; HDC hdc;
+    while((hsub = FindWindowExW(viewer.calender, hsub, L"STATIC", NULL)) != NULL){
+        hdc = BeginPaint(hsub, &ps);
+        GetWindowTextW(hsub, title, 20);
+        roundRect(hdc, ps, generateRandomColor(), RGB(255, 255, 255), SCHEMAIN_SUBJECT_ROUNDNESS);
+        drawText(hdc, ps, title, SCHEMAIN_SUBJECT_FONTSIZE, RGB(0,0,0),
+            true, true, false);
+        EndPaint(hsub, &ps);
+    }
+}
 
 
 static void listenSelection(WPARAM wparam, LPARAM lparam){ // 시간표 선택 이벤트 리스너
@@ -519,10 +539,18 @@ static void initWindow(){
         courses, 3
     };
 
+    schedules = (Schedule*)calloc(1, sizeof(Schedule));
+    schedules[0] = testTemplate;
+    scheduleCount = 1;
+    applyChoices();
+
     markPeriods(testTemplate);
     markTimes(testTemplate);
     markDays(testTemplate);
     renderCalender(testTemplate);
+
+    free(courses);
+    free(schedules);
 }
 
 
@@ -559,6 +587,7 @@ static LRESULT CALLBACK schedule_viewer_procedure(HWND hwnd, UINT uMsg, WPARAM w
             FillRect(hdc, &ps.rcPaint, CreateSolidBrush(SCHEMAIN_COLOR));
             EndPaint(viewer.calender, &ps);
             styleDays();
+            styleCalender();
             break;
         }
 

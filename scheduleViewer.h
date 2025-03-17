@@ -7,6 +7,7 @@
 #include<stdlib.h>
 #include<stdbool.h>
 #include<math.h> // 윈도우 배치 좌표 계산용
+#include<time.h>
 // GUI 링커 설정이 없다면/콘솔 모드라면 자동으로 진입점을 WinMain으로 설정
 // gcc 컴파일 옵션 -mwindows로 대체
 // #ifdef _WIN32
@@ -130,6 +131,9 @@ void closeWindow2(void);
 #define SCHEMAIN_DAYNAV_ROUNDNESS 20
 #define SCHEMAIN_DAYNAV_FONTSIZE 14
 #define SCHEMAIN_DAYNAV_FONTCOLOR RGB(0,0,0)
+
+#define SCHEMAIN_SUBJECT_FONTSIZE 12
+#define SCHEMAIN_SUBJECT_ROUNDNESS 15
 
 
 // 시간표 부분 설정값
