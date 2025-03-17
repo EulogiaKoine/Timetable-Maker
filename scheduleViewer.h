@@ -6,6 +6,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<stdbool.h>
+#include<math.h> // 윈도우 배치 좌표 계산용
 // GUI 링커 설정이 없다면/콘솔 모드라면 자동으로 진입점을 WinMain으로 설정
 // gcc 컴파일 옵션 -mwindows로 대체
 // #ifdef _WIN32
@@ -85,11 +86,11 @@ void closeWindow2(void);
 #define SCHEMAIN_PERIOD_RATE 0.2 // 교시 섹션 가로 비율
 #define SCHEMAIN_TIME_RATE 0.2 // 시간 섹션 가로 비율
 #define SCHEMAIN_GAP 0 // 메인 섹션 요소들 간 간격
-// 여러 번 쓰는 계산식이라 그냥 매크로로
-#define SCHEMAIN_CAL_XPOS \
-    ((SCHEWIN_PADDING + ))
-#define SCHEMAIN_CAL_WIDTH \
-    ((SCHEWIN_WIDTH - SCHEWIN_PADDING*2)*(1-SCHEMAIN_PERIOD_RATE-SCHEMAIN_TIME_RATE)-SCHEMAIN_GAP*2)
+// 여러 번 쓰는 계산식이라 그냥 매크로로  -> 안 씀
+// #define SCHEMAIN_CAL_XPOS \
+//     ((SCHEWIN_PADDING + ))
+// #define SCHEMAIN_CAL_WIDTH \
+//     ((SCHEWIN_WIDTH - SCHEWIN_PADDING*2)*(1-SCHEMAIN_PERIOD_RATE-SCHEMAIN_TIME_RATE)-SCHEMAIN_GAP*2)
 
 
 // 화면 스타일 옵션

@@ -362,7 +362,7 @@ static void styleTime(){
     }
 }
 
-
+// 캘린더 상단 요일 섹션
 static HWND createDayNav(){
     RECT rect;
     GetClientRect(viewer.calender, &rect);
@@ -390,8 +390,8 @@ static void markDays(Schedule template){
     calculateRequiredDays(template, range);
     RECT rt;
     GetWindowRect(viewer.daynav, &rt);
-    int width = (rt.right - rt.left)/5;
     int count = range[1] - range[0] + 1;
+    int width = (rt.right - rt.left)/count;
     wchar_t dayName[20] = L"";
     wchar_t** dayNamespace = (SCHEMAIN_DAYNAV_LANG==0? dayNames_eng: dayNames_kor);
     for(int i = 0; i < count; i++){
@@ -407,14 +407,9 @@ static void markDays(Schedule template){
     }
 }
 static void styleDays(){ // 작업중
-    // 부모 윈도우 먼저 칠해야 적용됨
-    PAINTSTRUCT ps;
-    HDC hdc = BeginPaint(viewer.calender, &ps);
-    FillRect(hdc, &ps.rcPaint, CreateSolidBrush(SCHEMAIN_COLOR));
-    EndPaint(viewer.calender, &ps);
-
     // 바탕(섹션 시각화용)
-    hdc = BeginPaint(viewer.daynav, &ps);
+    PAINTSTRUCT ps;
+    HDC hdc = BeginPaint(viewer.daynav, &ps);
     roundRect(hdc, ps, SCHEMAIN_DAYNAV_COLOR, SCHEMAIN_DAYNAV_COLOR, SCHEMAIN_DAYNAV_ROUNDNESS);
     EndPaint(viewer.daynav, &ps);
 
@@ -429,6 +424,49 @@ static void styleDays(){ // 작업중
     }
 }
 
+// 캘린더 파트
+static void renderCalender(Schedule template){
+    if(viewer.calender == NULL) return;
+
+    // 0. viewer.calender 내 y오프셋 = SCHEMAIN_DAYNAV_HEIGHT + SCHEMAIN_GAP
+    static int yOffset = SCHEMAIN_DAYNAV_HEIGHT + SCHEMAIN_GAP;
+    // 1. 요일 범위만큼 가로 길이 계산
+    // 2. 분당 높이 계산
+    // 3. 과목마다 시작 시각으로 행(y) 시작좌표+세로 길이 계산
+    // 4. 젠장할 배치
+
+    // 1
+    char days[2];
+    calculateRequiredDays(template, days);
+    RECT rt;
+    GetClientRect(viewer.calender, &rt);
+    int blockWidth = (rt.right - rt.left) / (days[1]-days[0]+1);
+
+    // 2
+    int times[2];
+    calculateRequiredTime(template, times);
+    int timeLong = ceil((times[1] - times[0]) / 60.0) * 60;
+    double blockHeightPerMinute = (rt.bottom - rt.top - yOffset) / (double)timeLong;
+
+    // 3, 4
+    Subject *course; wchar_t subInfo[20];
+    for(int i = 0; i < template.count; i++){
+        course = &template.courses[i];
+        if(course == NULL) continue;
+        wcscpy(subInfo, course->name);
+        HWND t = CreateWindowW(L"STATIC", (LPCWSTR)subInfo,
+            WS_CHILD | WS_VISIBLE | SS_CENTER,
+            blockWidth * (course->day - days[0]), yOffset + blockHeightPerMinute * (course->startTime - times[0]),
+            blockWidth, blockHeightPerMinute * (course->endTime - course->startTime),
+            viewer.calender,
+            NULL,
+            hInst, NULL
+        );
+        RECT r; GetClientRect(t, &r);
+        printf("(%d, %d) %lf (%d, %d)\n", r.left, r.right, blockHeightPerMinute, r.top, r.bottom);
+    }
+}
+// 캘린더 
 
 
 static void listenSelection(WPARAM wparam, LPARAM lparam){ // 시간표 선택 이벤트 리스너
@@ -462,11 +500,29 @@ static void initWindow(){
     viewer.timenav = createTimeNav();
     viewer.daynav = createDayNav();
 
+
     // 테스트코드
-    Schedule empty = {0};
-    markPeriods(empty);
-    markTimes(empty);
-    markDays(empty);
+    Subject* courses = (Subject*)calloc(3, sizeof(Subject));
+    wcscpy(courses[0].name, L"이산수학");
+    courses[0].day = 0;
+    courses[0].startTime = 540;
+    courses[0].endTime = 770;
+    wcscpy(courses[1].name, L"선형대수학");
+    courses[1].day = 3;
+    courses[1].startTime = 780;
+    courses[1].endTime = 900;
+    wcscpy(courses[2].name, L"해석학");
+    courses[2].day = 6;
+    courses[2].startTime = 555;
+    courses[2].endTime = 1030;
+    Schedule testTemplate = {
+        courses, 3
+    };
+
+    markPeriods(testTemplate);
+    markTimes(testTemplate);
+    markDays(testTemplate);
+    renderCalender(testTemplate);
 }
 
 
@@ -496,11 +552,13 @@ static LRESULT CALLBACK schedule_viewer_procedure(HWND hwnd, UINT uMsg, WPARAM w
             styleCalenderContainer();
             stylePeriods();
             styleTime();
+
+            // viewer.calender 하위, 부모 먼저 칠해야 자식도 적용됨
+            PAINTSTRUCT ps;
+            HDC hdc = BeginPaint(viewer.calender, &ps);
+            FillRect(hdc, &ps.rcPaint, CreateSolidBrush(SCHEMAIN_COLOR));
+            EndPaint(viewer.calender, &ps);
             styleDays();
-            // PAINTSTRUCT ps;
-            // HDC hdc = BeginPaint(viewer.calender, &ps);
-            // FillRect(hdc, &ps.rcPaint, CreateSolidBrush(RGB(0,0,0)));
-            // EndPaint(viewer.calender, &ps);
             break;
         }
 
