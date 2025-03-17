@@ -333,7 +333,7 @@ static void markTimes(Schedule template){
         if(i < 12)
             swprintf(timeName, L"오전 %d시", i);
         else
-            swprintf(timeName, L"오후 %d시", i);
+            swprintf(timeName, L"오후 %d시", (i-1) % 12 + 1);
         CreateWindowW(L"STATIC", (LPCWSTR)timeName,
             WS_CHILD | WS_VISIBLE | SS_LEFT,
             0, offsetY + blockHeight*(i-range[0]),
@@ -396,15 +396,36 @@ static void markDays(Schedule template){
     wchar_t** dayNamespace = (SCHEMAIN_DAYNAV_LANG==0? dayNames_eng: dayNames_kor);
     for(int i = 0; i < count; i++){
         swprintf(dayName, L"%ws", dayNamespace[range[0]+i]);
-        CreateWindowW(L"STATIC", dayName,
+        CreateWindowW(L"STATIC", (LPCWSTR)dayName,
             WS_CHILD | WS_VISIBLE | SS_CENTER,
-            width * i, SCHEMAIN_DAYNAV_HEIGHT - SCHEMAIN_DAYNAV_FONTSIZE,
+            width * i, SCHEMAIN_DAYNAV_HEIGHT - SCHEMAIN_DAYNAV_FONTSIZE*1.5,
             width, SCHEMAIN_DAYNAV_FONTSIZE,
             viewer.daynav,
             NULL,
             hInst, NULL
         );
-        wprintf(L"%ws\n", dayNamespace[i+range[0]]);
+    }
+}
+static void styleDays(){ // 작업중
+    // 부모 윈도우 먼저 칠해야 적용됨
+    PAINTSTRUCT ps;
+    HDC hdc = BeginPaint(viewer.calender, &ps);
+    FillRect(hdc, &ps.rcPaint, CreateSolidBrush(SCHEMAIN_COLOR));
+    EndPaint(viewer.calender, &ps);
+
+    // 바탕(섹션 시각화용)
+    hdc = BeginPaint(viewer.daynav, &ps);
+    roundRect(hdc, ps, SCHEMAIN_DAYNAV_COLOR, SCHEMAIN_DAYNAV_COLOR, SCHEMAIN_DAYNAV_ROUNDNESS);
+    EndPaint(viewer.daynav, &ps);
+
+    // 글씨
+    HWND htxt = NULL; wchar_t title[20];
+    while((htxt = FindWindowExW(viewer.daynav, htxt, L"STATIC", NULL)) != NULL){
+        hdc = BeginPaint(htxt, &ps);
+        GetWindowTextW(htxt, title, 20);
+        drawText(hdc, ps, title, SCHEMAIN_DAYNAV_FONTSIZE, SCHEMAIN_DAYNAV_FONTCOLOR,
+            true, true, false);
+        EndPaint(htxt, &ps);
     }
 }
 
@@ -471,12 +492,15 @@ static LRESULT CALLBACK schedule_viewer_procedure(HWND hwnd, UINT uMsg, WPARAM w
         case WM_PAINT:{
             styleOuterFrame();
             styleHeader();
-            // stylePeriods();
 
             styleCalenderContainer();
             stylePeriods();
             styleTime();
-
+            styleDays();
+            // PAINTSTRUCT ps;
+            // HDC hdc = BeginPaint(viewer.calender, &ps);
+            // FillRect(hdc, &ps.rcPaint, CreateSolidBrush(RGB(0,0,0)));
+            // EndPaint(viewer.calender, &ps);
             break;
         }
 
