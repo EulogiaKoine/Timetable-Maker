@@ -425,6 +425,21 @@ static void styleDays(){ // 작업중
 }
 
 // 캘린더 파트
+static COLORREF* colorPalette;
+static void initColorPalette(int count){
+    static int colorRange = SCHEMAIN_SUBJECT_COLORUPBOUND - SCHEMAIN_SUBJECT_COLOROFFSET + 2; // 상한 포함+1, rand% 시 하한 포함 +1
+
+    if(colorPalette != NULL)
+        free(colorPalette);
+    colorPalette = (COLORREF*)calloc(count, sizeof(COLORREF));
+    srand(time(NULL));
+    while(count--)
+        colorPalette[count] = RGB(
+            rand()%colorRange + SCHEMAIN_SUBJECT_COLOROFFSET,
+            rand()%colorRange + SCHEMAIN_SUBJECT_COLOROFFSET,
+            rand()%colorRange + SCHEMAIN_SUBJECT_COLOROFFSET
+        );
+}
 static void renderCalender(Schedule template){
     if(viewer.calender == NULL) return;
 
@@ -464,24 +479,16 @@ static void renderCalender(Schedule template){
         );
     }
 }
-static COLORREF generateRandomColor(){
-    static bool init = true;
-    if(init){
-        srand(time(NULL));
-        init = false;
-    }
-    return RGB(rand()%100+156, rand()%100+156, rand()%100+156);
-}
 static void styleCalender(){
     if(viewer.calender == NULL) return;
 
     // 첫 요소(daynav) 제외한 블럭들 대상
     HWND hsub = FindWindowExW(viewer.calender, NULL, L"STATIC", NULL); wchar_t title[20];
-    PAINTSTRUCT ps; HDC hdc;
+    PAINTSTRUCT ps; HDC hdc; int i = 0;
     while((hsub = FindWindowExW(viewer.calender, hsub, L"STATIC", NULL)) != NULL){
         hdc = BeginPaint(hsub, &ps);
         GetWindowTextW(hsub, title, 20);
-        roundRect(hdc, ps, generateRandomColor(), RGB(255, 255, 255), SCHEMAIN_SUBJECT_ROUNDNESS);
+        roundRect(hdc, ps, colorPalette[i++], SCHEMAIN_SUBJECT_BORDERCOLOR, SCHEMAIN_SUBJECT_ROUNDNESS);
         drawText(hdc, ps, title, SCHEMAIN_SUBJECT_FONTSIZE, RGB(0,0,0),
             true, true, false);
         EndPaint(hsub, &ps);
@@ -548,6 +555,7 @@ static void initWindow(){
     markTimes(testTemplate);
     markDays(testTemplate);
     renderCalender(testTemplate);
+    initColorPalette(testTemplate.count);
 
     free(courses);
     free(schedules);
