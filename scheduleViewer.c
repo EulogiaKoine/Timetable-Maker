@@ -615,7 +615,7 @@ static void initWindow(){
     viewer.main = createCalenderContainer();
 
     // 테스트
-    test();
+    // test();
 }
 static void test(){
     Subject* courses = (Subject*)calloc(6, sizeof(Subject));
