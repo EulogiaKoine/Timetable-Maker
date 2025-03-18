@@ -407,6 +407,7 @@ static void markDays(Schedule template){
     }
 }
 static void styleDays(){ // 작업중
+    if(viewer.daynav == NULL) return;
     // 바탕(섹션 시각화용)
     PAINTSTRUCT ps;
     HDC hdc = BeginPaint(viewer.daynav, &ps);
@@ -471,7 +472,7 @@ static void renderCalender(Schedule template){
         wcscpy(subInfo, course->name);
         CreateWindowW(L"STATIC", (LPCWSTR)subInfo,
             WS_CHILD | WS_VISIBLE | SS_CENTER,
-            blockWidth * (course->day - days[0]), yOffset + blockHeightPerMinute * (course->startTime - times[0]),
+            2 + blockWidth * (course->day - days[0]), yOffset + blockHeightPerMinute * (course->startTime - times[0]),
             blockWidth, blockHeightPerMinute * (course->endTime - course->startTime),
             viewer.calender,
             NULL,
@@ -490,12 +491,39 @@ static void styleCalender(){
         GetWindowTextW(hsub, title, 20);
         roundRect(hdc, ps, colorPalette[i++], SCHEMAIN_SUBJECT_BORDERCOLOR, SCHEMAIN_SUBJECT_ROUNDNESS);
         drawText(hdc, ps, title, SCHEMAIN_SUBJECT_FONTSIZE, RGB(0,0,0),
-            true, true, false);
+            true, true, true);
         EndPaint(hsub, &ps);
     }
 }
 
 
+static void clearStaticChildren(HWND hwnd){
+    HWND hChild = NULL;
+    while((hChild = FindWindowExW(viewer.periodnav, hChild, L"STATIC", NULL)) != NULL)
+        DestroyWindow(hChild);
+}
+static void tryClearMain(){
+    if(viewer.periodnav != NULL){
+        clearStaticChildren(viewer.periodnav);
+        DestroyWindow(viewer.periodnav);
+        viewer.periodnav = NULL;
+    }
+    if(viewer.calender != NULL){
+        if(viewer.daynav != NULL){
+            clearStaticChildren(viewer.daynav);
+            DestroyWindow(viewer.daynav);
+            viewer.daynav = NULL;
+        }
+        clearStaticChildren(viewer.calender);
+        DestroyWindow(viewer.calender);
+        viewer.calender = NULL;
+    }
+    if(viewer.timenav != NULL){
+        clearStaticChildren(viewer.timenav);
+        DestroyWindow(viewer.timenav);
+        viewer.timenav = NULL;
+    }
+}
 static void listenSelection(WPARAM wparam, LPARAM lparam){ // 시간표 선택 이벤트 리스너
     // ID가 시간표 드롭다운 목록이고(ID_SELECTOR)
     // 콤보박스 항목 변경 이벤트일 경우(CBN_SELCHANGE)
@@ -503,17 +531,35 @@ static void listenSelection(WPARAM wparam, LPARAM lparam){ // 시간표 선택 �
         int idx = SendMessageW((HWND)lparam /* 핸들 겟 */, CB_GETCURSEL, 0, 0);
         if(idx == CB_ERR) return;
 
-        // 선택된 번호에 따른 시간표 띄우기만 하면 끝
-        
         // testcode
         // wchar_t selectedText[256];
-        // SendMessageW((HWND)lparam, CB_GETLBTEXT, idx, (LPARAM)selectedText);  // 선택된 항목의 텍스트를 가져옴
-
+        // SendMessageW((HWND)lparam, CB_GETLBTEXT, idx, (LPARAM)selectedText);  // 선택된 항목의 텍스트
+        // swprintf(selectedText, L"%ws / %d번", selectedText, idx);
         // MessageBoxW(NULL, selectedText, L"선택된 값", MB_OK);
+
+        // main 비우기
+        tryClearMain();
+
+        // 선택된 번호에 따른 시간표 띄우기
+        viewer.periodnav = createPeriodNav();
+        viewer.calender = createCalenderBox();
+        viewer.timenav = createTimeNav();
+        viewer.daynav = createDayNav();
+
+        Schedule template = schedules[idx];
+        markPeriods(template);
+        markTimes(template);
+        markDays(template);
+        renderCalender(template);
+        initColorPalette(template.count);
+
+        // 강제 즉각 갱신
+        InvalidateRect(viewer.body, NULL, TRUE);
     }
 }
 
 
+static void test();
 static void initWindow(){
     viewer.body = createOuterFrame();
     viewer.header = createHeader();
@@ -522,16 +568,14 @@ static void initWindow(){
     applyChoices();
 
     viewer.main = createCalenderContainer();
-    viewer.periodnav = createPeriodNav();
-    viewer.calender = createCalenderBox();
-    viewer.timenav = createTimeNav();
-    viewer.daynav = createDayNav();
 
-
-    // 테스트코드
+    // 테스트
+    test();
+}
+static void test(){
     Subject* courses = (Subject*)calloc(3, sizeof(Subject));
     wcscpy(courses[0].name, L"이산수학");
-    courses[0].day = 0;
+    courses[0].day = 1;
     courses[0].startTime = 540;
     courses[0].endTime = 770;
     wcscpy(courses[1].name, L"선형대수학");
@@ -539,26 +583,44 @@ static void initWindow(){
     courses[1].startTime = 780;
     courses[1].endTime = 900;
     wcscpy(courses[2].name, L"해석학");
-    courses[2].day = 6;
+    courses[2].day = 5;
     courses[2].startTime = 555;
     courses[2].endTime = 1030;
     Schedule testTemplate = {
         courses, 3
     };
 
-    schedules = (Schedule*)calloc(1, sizeof(Schedule));
+    Subject* courses2 = (Subject*)calloc(3, sizeof(Subject));
+    wcscpy(courses2[0].name, L"소프트웨어공학");
+    courses2[0].day = 2;
+    courses2[0].startTime = 540;
+    courses2[0].endTime = 770;
+    wcscpy(courses2[1].name, L"알고리즘");
+    courses2[1].day = 0;
+    courses2[1].startTime = 780;
+    courses2[1].endTime = 900;
+    wcscpy(courses2[2].name, L"자바프로그래밍");
+    courses2[2].day = 6;
+    courses2[2].startTime = 555;
+    courses2[2].endTime = 1030;
+    Schedule testTemplate2 = {
+        courses2, 3
+    };
+
+    schedules = (Schedule*)calloc(2, sizeof(Schedule));
     schedules[0] = testTemplate;
-    scheduleCount = 1;
+    schedules[1] = testTemplate2;
+    scheduleCount = 2;
     applyChoices();
 
-    markPeriods(testTemplate);
-    markTimes(testTemplate);
-    markDays(testTemplate);
-    renderCalender(testTemplate);
-    initColorPalette(testTemplate.count);
+    // markPeriods(testTemplate);
+    // markTimes(testTemplate);
+    // markDays(testTemplate);
+    // renderCalender(testTemplate);
+    // initColorPalette(testTemplate.count);
 
-    free(courses);
-    free(schedules);
+    // free(courses);
+    // free(schedules);
 }
 
 

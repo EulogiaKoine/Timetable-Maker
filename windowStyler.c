@@ -21,25 +21,37 @@ void drawText(HDC hdc, PAINTSTRUCT ps, LPCWSTR text, int fontSize, COLORREF colo
     SetTextColor(hdc, color);
 
     HFONT hFont = CreateFontW(
-        fontSize,                   // 텍스트의 높이 (폰트 크기)  -> 글씨가 위아래로 뭉개지지 않게 방지
-        0,                    // 너비 기본값
-        0,                    // 회전 각도 기본값
-        0,                    // 기울임 기본값
-        FW_NORMAL,            // 폰트 두께(기본값)
-        FALSE, FALSE, FALSE,  // 기울임, 밑줄, 취소선 없음
-        DEFAULT_CHARSET,      // 문자셋(기본값: ANSI_DEFAULT)
-        OUT_DEFAULT_PRECIS,   // 출력 정밀도(기본값)
-        CLIP_DEFAULT_PRECIS,  // 클리핑 정밀도(기본값)
-        DEFAULT_QUALITY,      // 품질(기본값)
-        DEFAULT_PITCH | FF_DONTCARE, // 글꼴 패밀리
-        L"Arial"          // 폰트 이름
+        fontSize, 0, 0, 0, FW_NORMAL,
+        FALSE, FALSE, FALSE, DEFAULT_CHARSET,
+        OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
+        DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, L"Arial"
     );
-    
-    SelectObject(hdc, hFont);  // HDC에 새 폰트 적용
+    HFONT hOldFont = (HFONT)SelectObject(hdc, hFont);
 
-    DrawTextW(hdc, text, -1, &ps.rcPaint,
-        (horizontal_align? DT_CENTER: DT_LEFT)
-        | (vertical_align? DT_VCENTER: DT_TOP)
-        | (linebreak? DT_WORDBREAK: DT_SINGLELINE)
-    );
+    // 기본 그리기 영역 설정
+    RECT rect = ps.rcPaint;
+    UINT format = (horizontal_align ? DT_CENTER : DT_LEFT) |
+                  (linebreak ? DT_WORDBREAK : DT_SINGLELINE);
+
+    if (linebreak && vertical_align) {
+        // 텍스트의 실제 크기를 계산하기 위해 DT_CALCRECT 플래그 사용
+        RECT calcRect = rect;
+        DrawTextW(hdc, text, -1, &calcRect, format | DT_CALCRECT);
+        int textHeight = calcRect.bottom - calcRect.top;
+        int totalHeight = rect.bottom - rect.top;
+        // 텍스트 높이를 기준으로 수직 중앙 정렬
+        int offset = (totalHeight - textHeight) / 2;
+        rect.top += offset;
+        rect.bottom = rect.top + textHeight;
+    } else if (!linebreak && vertical_align) {
+        // 단일 라인 모드에서는 DT_VCENTER 플래그 사용 가능
+        format |= DT_VCENTER;
+    }
+
+    // 텍스트 그리기
+    DrawTextW(hdc, text, -1, &rect, format);
+
+    // 리소스 정리
+    SelectObject(hdc, hOldFont);
+    DeleteObject(hFont);
 }
