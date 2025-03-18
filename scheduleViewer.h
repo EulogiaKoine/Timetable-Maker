@@ -84,8 +84,8 @@ void closeWindow2(void);
 #define SCHESEL_HIDED_HEIGHT 21 // 드롭다운이 숨겨져 있을 때의 높이(변경 불가)
 #define SCHESEL_HEIGHT 100 // 선택창 세로(전체); 50 미만이면 드롭다운이 안됨
 #define SCHEMAIN_DAYNAV_HEIGHT 50 // 요일 섹션 높이
-#define SCHEMAIN_PERIOD_RATE 0.2 // 교시 섹션 가로 비율
-#define SCHEMAIN_TIME_RATE 0.2 // 시간 섹션 가로 비율
+#define SCHEMAIN_PERIOD_RATE 0.15 // 교시 섹션 가로 비율
+#define SCHEMAIN_TIME_RATE 0.15 // 시간 섹션 가로 비율
 #define SCHEMAIN_GAP 0 // 메인 섹션 요소들 간 간격
 // 여러 번 쓰는 계산식이라 그냥 매크로로  -> 안 씀
 // #define SCHEMAIN_CAL_XPOS \

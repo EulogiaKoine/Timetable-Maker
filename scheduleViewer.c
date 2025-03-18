@@ -486,7 +486,7 @@ static void renderCalender(Schedule template){
         wcscpy(subInfo, course->name);
         CreateWindowW(L"STATIC", (LPCWSTR)subInfo,
             WS_CHILD | WS_VISIBLE | SS_CENTER,
-            2 + blockWidth * (course->day - days[0]), yOffset + blockHeightPerMinute * (course->startTime - times[0]),
+            4 + blockWidth * (course->day - days[0]), yOffset + blockHeightPerMinute * (course->startTime - times[0]),
             blockWidth, blockHeightPerMinute * (course->endTime - course->startTime),
             viewer.calender,
             NULL,
@@ -615,7 +615,7 @@ static void initWindow(){
     viewer.main = createCalenderContainer();
 
     // 테스트
-    // test();
+    test();
 }
 static void test(){
     Subject* courses = (Subject*)calloc(6, sizeof(Subject));
