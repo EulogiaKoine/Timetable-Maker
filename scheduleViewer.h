@@ -6,6 +6,8 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<stdbool.h>
+#include<math.h> // 윈도우 배치 좌표 계산용
+#include<time.h>
 // GUI 링커 설정이 없다면/콘솔 모드라면 자동으로 진입점을 WinMain으로 설정
 // gcc 컴파일 옵션 -mwindows로 대체
 // #ifdef _WIN32
@@ -81,15 +83,15 @@ void closeWindow2(void);
 #define SCHESEL_WIDTH 200 // 선택창 가로
 #define SCHESEL_HIDED_HEIGHT 21 // 드롭다운이 숨겨져 있을 때의 높이(변경 불가)
 #define SCHESEL_HEIGHT 100 // 선택창 세로(전체); 50 미만이면 드롭다운이 안됨
-#define SCHEMAIN_DAYNAV_HEIGHT 100 // 요일 섹션 높이
-#define SCHEMAIN_PERIOD_RATE 0.2 // 교시 섹션 가로 비율
-#define SCHEMAIN_TIME_RATE 0.2 // 시간 섹션 가로 비율
-#define SCHEMAIN_GAP 10 // 메인 섹션 요소들 간 간격
-// 여러 번 쓰는 계산식이라 그냥 매크로로
-#define SCHEMAIN_CAL_XPOS \
-    ((SCHEWIN_PADDING + ))
-#define SCHEMAIN_CAL_WIDTH \
-    ((SCHEWIN_WIDTH - SCHEWIN_PADDING*2)*(1-SCHEMAIN_PERIOD_RATE-SCHEMAIN_TIME_RATE)-SCHEMAIN_GAP*2)
+#define SCHEMAIN_DAYNAV_HEIGHT 50 // 요일 섹션 높이
+#define SCHEMAIN_PERIOD_RATE 0.15 // 교시 섹션 가로 비율
+#define SCHEMAIN_TIME_RATE 0.15 // 시간 섹션 가로 비율
+#define SCHEMAIN_GAP 0 // 메인 섹션 요소들 간 간격
+// 여러 번 쓰는 계산식이라 그냥 매크로로  -> 안 씀
+// #define SCHEMAIN_CAL_XPOS \
+//     ((SCHEWIN_PADDING + ))
+// #define SCHEMAIN_CAL_WIDTH \
+//     ((SCHEWIN_WIDTH - SCHEWIN_PADDING*2)*(1-SCHEMAIN_PERIOD_RATE-SCHEMAIN_TIME_RATE)-SCHEMAIN_GAP*2)
 
 
 // 화면 스타일 옵션
@@ -102,7 +104,7 @@ void closeWindow2(void);
 #define SCHEWIN_BGCOLOR (HBRUSH)(COLOR_WINDOW+1)
 
 #define SCHEHEADER_STYLE (WS_VISIBLE | WS_CHILD | SS_CENTER)
-#define SCHEHEADER_COLOR RGB(108, 190, 191)
+#define SCHEHEADER_COLOR RGB(158, 240, 241)
 #define SCHEHEADER_BORDER_COLOR RGB(255, 255, 255)
 #define SCHEHEADER_ROUNDNESS 20  // 괄호 없이, 20px*20px만큼 꺾이도록
 #define SCHEHEADER_FONTSIZE 24   // 좀 작지만 예쁜 사이즈
@@ -111,14 +113,34 @@ void closeWindow2(void);
 #define SCHESEL_ALIGN 1 // 수평 정렬 옵션; 0=왼쪽, 1=가운데, 2=오른쪽
 
 #define SCHEMAIN_STYLE (WS_VISIBLE | WS_CHILD)
-#define SCHEMAIN_COLOR RGB(229, 228, 226) // Platinum
-#define SCHEMAIN_ROUNDNESS 20
+#define SCHEMAIN_COLOR RGB(249, 249, 249)
+#define SCHEMAIN_ROUNDNESS 0
+
+#define SCHEMAIN_PERIOD_COLOR RGB(255,255,255)
+#define SCHEMAIN_PERIOD_ROUNDNESS SCHEMAIN_ROUNDNESS*1.2
+#define SCHEMAIN_PERIOD_FONTSIZE 20
+#define SCHEMAIN_PERIOD_FONTCOLOR RGB(0,0,0)
+
+#define SCHEMAIN_TIME_COLOR RGB(255,255,255)
+#define SCHEMAIN_TIME_ROUNDNESS SCHEMAIN_ROUNDNESS*1.2
+#define SCHEMAIN_TIME_FONTSIZE 20
+#define SCHEMAIN_TIME_FONTCOLOR RGB(0,0,0)
+
+#define SCHEMAIN_DAYNAV_LANG 0 // 0=eng, 1=kor
+#define SCHEMAIN_DAYNAV_COLOR RGB(255,255,255)
+#define SCHEMAIN_DAYNAV_ROUNDNESS 0
+#define SCHEMAIN_DAYNAV_FONTSIZE 18
+#define SCHEMAIN_DAYNAV_FONTCOLOR RGB(0,0,0)
+
+#define SCHEMAIN_SUBJECT_FONTSIZE 16
+#define SCHEMAIN_SUBJECT_BORDERCOLOR RGB(255,255,255)
+#define SCHEMAIN_SUBJECT_ROUNDNESS 0
 
 
 // 시간표 부분 설정값
 // 일단 에브리타임과 동일
-#define DEFAULT_START_DAY 0     // 기본 시작 요일 = 월
-#define DEFAULT_END_DAY 4       // 기본 끝 요일 = 금
+#define DEFAULT_START_DAY 1     // 기본 시작 요일 = 월
+#define DEFAULT_END_DAY 5       // 기본 끝 요일 = 금
 #define DEFAULT_START_TIME 7*60 // 기본 시작 시각 = 7 a.m.
 #define DEFAULT_END_TIME 16*60  // 기본 끝 시각 = 4 p.m.
 #define PERIOD_OFFSET 9*60      // 1교시 시작시각; 1시간 단위로 +-됨
