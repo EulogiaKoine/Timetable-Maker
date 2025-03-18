@@ -196,26 +196,7 @@ void Struct_Saved_Data() {
     }
 }
 
-
-
-/*
-WinMain 함수:
-
-프로그램시작
-윈도우 클래스를 등록하고, 윈도우를 생성한 후 메시지 루프를 실행
-
-WndProc 함수:
-
-윈도우 메시지를 처리하는 창 프로시저
-WM_CREATE: 윈도우 생성 시 "추가" 및 "저장" 버튼을 생성
-WM_COMMAND: 버튼 클릭 이벤트를 처리
-WM_DESTROY: 윈도우 종료 시 메시지 루프를 종료
-
-AddRow 함수:
-
-새로운 행을 추가하는 함수
-최대 행 수를 초과하면 경고 메시지를 표시
-입력 필드 생성에 실패하면 에러 메시지를 표시
-
-SaveData 함수:
-*/
+//txt파일에 형식에 맞게 저장된것도 있고
+//courseData[i].name, day, starTime, endTime으로 구조체에도 저장되어있음
+// interface_function.h헤더파일을 include하면 쓸 수 있을듯
+//(=0~9)

@@ -30,7 +30,8 @@ typedef struct {
     wchar_t endTime[10];    // 끝시간
 } Course;
 
-Course courseData[MAX_ROWS]; // 입력된 강의 데이터를 저장할 배열
+Course courseData[MAX_ROWS]; // 입력된 강의 데이터를 저장할 배열 
+//이 구조체에 입력받은 값이 저장됨!!
 
 // 함수 선언
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM); // 창 프로시저
