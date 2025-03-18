@@ -157,6 +157,7 @@ static HWND createSelector(){
     );
 }
 static void applyChoices(){ // schedules 데이터로부터 선택지 적용 및 생성
+    if(schedules == NULL || scheduleCount == 0) return;
     wchar_t label[20] = L"";
     for(int i = 0; i < scheduleCount; i++){
         swprintf(label, L"%d번 시간표", i+1);
@@ -249,14 +250,15 @@ static void markPeriods(Schedule template){ // 교시 표시; 표시할 시간�
     GetWindowRect(viewer.main, &rect);
     int offsetY = SCHEMAIN_DAYNAV_HEIGHT + SCHEMAIN_GAP;
     int blockHeight = (rect.bottom - rect.top - offsetY)/periodCount;
+    int blockWidth = (rect.right - rect.left) * SCHEMAIN_PERIOD_RATE / 2;
 
     wchar_t periodName[10] = L"";
     for(int i = 0; i < periodCount; i++){
         swprintf(periodName, L"%d교시", i+1);
         CreateWindowW(L"STATIC", (LPCWSTR)periodName,
             WS_CHILD | WS_VISIBLE | SS_RIGHT,
-            0, offsetY + blockHeight*i,
-            (rect.right - rect.left) * SCHEMAIN_PERIOD_RATE, blockHeight,
+            blockWidth, offsetY + blockHeight*i - (i/3),
+            blockWidth, blockHeight,
             viewer.periodnav,
             NULL,
             hInst, NULL
@@ -276,7 +278,7 @@ static void stylePeriods(){
         hdc = BeginPaint(htxt, &ps);
         GetWindowTextW(htxt, title, 20);
         drawText(hdc, ps, title, SCHEMAIN_PERIOD_FONTSIZE, SCHEMAIN_PERIOD_FONTCOLOR,
-            true, true, false);
+            true, false, false);
         EndPaint(htxt, &ps);
     }
 }
@@ -319,25 +321,30 @@ static void markTimes(Schedule template){
 
     int range[2];
     calculateRequiredTime(template, range);
+    int periodRange[2];
+    convertTimeRangeToPeriodRange(range, periodRange);
+
     range[0] /= 60;
     range[1] = range[1]/60 + 1; // 어차피 시간 단위로 쓸 거
+    int periodCount = periodRange[1] - periodRange[0] + 1;
     
-    int timeCount = range[1]-range[0]+1;
     RECT rect;
     GetWindowRect(viewer.main, &rect);
     int offsetY = SCHEMAIN_DAYNAV_HEIGHT + SCHEMAIN_GAP;
-    int blockHeight = (rect.bottom - rect.top - offsetY)/timeCount;
+    int blockHeight = (rect.bottom - rect.top - offsetY)/periodCount;
+    int blockWidth = (rect.right - rect.left) * SCHEMAIN_TIME_RATE / 2;
 
     wchar_t timeName[20] = L"";
     for(int i = range[0]; i <= range[1]; i++){
         if(i < 12)
-            swprintf(timeName, L"오전 %d시", i);
+            swprintf(timeName, L"%d시", i);
         else
-            swprintf(timeName, L"오후 %d시", (i-1) % 12 + 1);
+            swprintf(timeName, L"%d시", (i-1) % 12 + 1);
+        // swprintf(timeName, L"%d:00", i);
         CreateWindowW(L"STATIC", (LPCWSTR)timeName,
             WS_CHILD | WS_VISIBLE | SS_LEFT,
-            0, offsetY + blockHeight*(i-range[0]),
-            (rect.right - rect.left) * SCHEMAIN_TIME_RATE, blockHeight,
+            0, offsetY + blockHeight*(i-range[0]) - (i/3),
+            blockWidth, blockHeight,
             viewer.timenav,
             NULL,
             hInst, NULL
@@ -357,7 +364,7 @@ static void styleTime(){
         hdc = BeginPaint(htxt, &ps);
         GetWindowTextW(htxt, title, 20);
         drawText(hdc, ps, title, SCHEMAIN_TIME_FONTSIZE, SCHEMAIN_TIME_FONTCOLOR,
-            true, true, false);
+            true, false, false);
         EndPaint(htxt, &ps);
     }
 }
@@ -427,19 +434,22 @@ static void styleDays(){ // 작업중
 
 // 캘린더 파트
 static COLORREF* colorPalette;
+static COLORREF generatePastelRGB(){
+    return hsv2rgb(
+        (float)(rand() % 360),
+        0.2f + ((float)rand() / RAND_MAX) * 0.4f,
+        1.f
+    );
+}
 static void initColorPalette(int count){
-    static int colorRange = SCHEMAIN_SUBJECT_COLORUPBOUND - SCHEMAIN_SUBJECT_COLOROFFSET + 2; // 상한 포함+1, rand% 시 하한 포함 +1
-
     if(colorPalette != NULL)
         free(colorPalette);
     colorPalette = (COLORREF*)calloc(count, sizeof(COLORREF));
+
+    int total, r, g;
     srand(time(NULL));
     while(count--)
-        colorPalette[count] = RGB(
-            rand()%colorRange + SCHEMAIN_SUBJECT_COLOROFFSET,
-            rand()%colorRange + SCHEMAIN_SUBJECT_COLOROFFSET,
-            rand()%colorRange + SCHEMAIN_SUBJECT_COLOROFFSET
-        );
+        colorPalette[count] = generatePastelRGB();
 }
 static void renderCalender(Schedule template){
     if(viewer.calender == NULL) return;
@@ -489,11 +499,41 @@ static void styleCalender(){
     while((hsub = FindWindowExW(viewer.calender, hsub, L"STATIC", NULL)) != NULL){
         hdc = BeginPaint(hsub, &ps);
         GetWindowTextW(hsub, title, 20);
-        roundRect(hdc, ps, colorPalette[i++], SCHEMAIN_SUBJECT_BORDERCOLOR, SCHEMAIN_SUBJECT_ROUNDNESS);
+        roundRect(hdc, ps, colorPalette[i++], colorPalette[i], SCHEMAIN_SUBJECT_ROUNDNESS);
         drawText(hdc, ps, title, SCHEMAIN_SUBJECT_FONTSIZE, RGB(0,0,0),
             true, true, true);
         EndPaint(hsub, &ps);
     }
+}
+
+// 배경 점선
+static Schedule currentSchedule = {0}; // 이제... 클린 코드고 뭐고. 최종이겠지... 이게... 응, 괜찮을 거야......
+static void drawGridLines(HDC hdc, RECT rect) {
+    if(currentSchedule.count <= 0) return; // 시간표가 없으면 그리지 않음
+
+    int times[2];
+    calculateRequiredTime(currentSchedule, times);
+    int span = times[1] - times[0];
+    int timeLong = (int)(ceil(span / 60.0) * 60);
+
+    // 캘린더 내부에서 요일 네비게이션 아래 시작
+    int yOffset = SCHEMAIN_DAYNAV_HEIGHT + SCHEMAIN_GAP;
+    int availableHeight = (rect.bottom - rect.top) - yOffset;
+    double blockHeightPerMinute = (double)availableHeight / timeLong;
+
+    // 옅은 회색 점선 펜 생성
+    HPEN hPen = CreatePen(PS_DOT, 1, RGB(200, 200, 200));
+    HPEN hPenOld = (HPEN)SelectObject(hdc, hPen);
+
+    // 60분 단위로 가로줄 그리기 (상단 가장자리 제외)
+    for (int t = times[0] + 60; t < times[0] + timeLong; t += 60) {
+        int y = yOffset + (int)((t - times[0]) * blockHeightPerMinute);
+        MoveToEx(hdc, rect.left, y, NULL);
+        LineTo(hdc, rect.right, y);
+    }
+
+    SelectObject(hdc, hPenOld);
+    DeleteObject(hPen);
 }
 
 
@@ -552,6 +592,7 @@ static void listenSelection(WPARAM wparam, LPARAM lparam){ // 시간표 선택 �
         markDays(template);
         renderCalender(template);
         initColorPalette(template.count);
+        currentSchedule = template;
 
         // 강제 즉각 갱신
         InvalidateRect(viewer.body, NULL, TRUE);
@@ -573,21 +614,33 @@ static void initWindow(){
     test();
 }
 static void test(){
-    Subject* courses = (Subject*)calloc(3, sizeof(Subject));
+    Subject* courses = (Subject*)calloc(6, sizeof(Subject));
     wcscpy(courses[0].name, L"이산수학");
-    courses[0].day = 1;
+    courses[0].day = 5;
     courses[0].startTime = 540;
     courses[0].endTime = 770;
     wcscpy(courses[1].name, L"선형대수학");
-    courses[1].day = 3;
+    courses[1].day = 5;
     courses[1].startTime = 780;
     courses[1].endTime = 900;
     wcscpy(courses[2].name, L"해석학");
-    courses[2].day = 5;
+    courses[2].day = 1;
     courses[2].startTime = 555;
     courses[2].endTime = 1030;
+    wcscpy(courses[3].name, L"소프트웨어공학");
+    courses[3].day = 2;
+    courses[3].startTime = 540;
+    courses[3].endTime = 770;
+    wcscpy(courses[4].name, L"알고리즘");
+    courses[4].day = 3;
+    courses[4].startTime = 780;
+    courses[4].endTime = 900;
+    wcscpy(courses[5].name, L"자바프로그래밍");
+    courses[5].day = 4;
+    courses[5].startTime = 555;
+    courses[5].endTime = 1030;
     Schedule testTemplate = {
-        courses, 3
+        courses, 6
     };
 
     Subject* courses2 = (Subject*)calloc(3, sizeof(Subject));
@@ -630,7 +683,6 @@ static void test(){
 
 
 
-
 // ---------------------------
 // -------- procedure --------
 // ---------------------------
@@ -655,6 +707,7 @@ static LRESULT CALLBACK schedule_viewer_procedure(HWND hwnd, UINT uMsg, WPARAM w
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(viewer.calender, &ps);
             FillRect(hdc, &ps.rcPaint, CreateSolidBrush(SCHEMAIN_COLOR));
+            drawGridLines(hdc, ps.rcPaint);
             EndPaint(viewer.calender, &ps);
             styleDays();
             styleCalender();

@@ -3,6 +3,7 @@
 #pragma once
 #include<windows.h>
 #include<stdbool.h>
+#include<math.h>
 
 // 해당 요소를 둥근 직사각형으로 그리기
 // STATIC으로 생성된 요소 권장
@@ -21,4 +22,11 @@ void drawText(
     COLORREF color,                             // 텍스트 색깔
     bool horizontal_align, bool vertical_align, // 수평 가운데 정렬, 수직 가운데 정렬 여부
     bool linebreak                              // 자동 줄바꿈 여부
+);
+
+// HSV를 지원해주지 않아 노가다
+COLORREF hsv2rgb(
+    float h, // 색상(0~360)
+    float s, // 채도
+    float v  // 명도
 );

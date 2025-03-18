@@ -55,3 +55,30 @@ void drawText(HDC hdc, PAINTSTRUCT ps, LPCWSTR text, int fontSize, COLORREF colo
     SelectObject(hdc, hOldFont);
     DeleteObject(hFont);
 }
+
+
+COLORREF hsv2rgb(float h, float s, float v){
+    float C = v * s;
+    float X = C * (1 - fabs(fmod(h / 60.0, 2) - 1));
+    float m = v - C;
+    float r_prime, g_prime, b_prime;
+
+    if (h < 60) {
+        r_prime = C; g_prime = X; b_prime = 0;
+    } else if (h < 120) {
+        r_prime = X; g_prime = C; b_prime = 0;
+    } else if (h < 180) {
+        r_prime = 0; g_prime = C; b_prime = X;
+    } else if (h < 240) {
+        r_prime = 0; g_prime = X; b_prime = C;
+    } else if (h < 300) {
+        r_prime = X; g_prime = 0; b_prime = C;
+    } else {
+        r_prime = C; g_prime = 0; b_prime = X;
+    }
+    
+    int r = (int)((r_prime + m) * 255);
+    int g = (int)((g_prime + m) * 255);
+    int b = (int)((b_prime + m) * 255);
+    return RGB(r, g, b);
+}
