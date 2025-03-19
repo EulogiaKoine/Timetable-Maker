@@ -258,7 +258,10 @@ static void markPeriods(Schedule template){ // 교시 표시; 표시할 시간�
 
     wchar_t periodName[10] = L"";
     for(int i = 0; i < periodCount; i++){
-        swprintf(periodName, L"%d교시", i+1);
+        if(range[0]+i < 0)
+            wcscpy(periodName, L"");
+        else
+            swprintf(periodName, L"%d교시", range[0]+i);
         CreateWindowW(L"STATIC", (LPCWSTR)periodName,
             WS_CHILD | WS_VISIBLE | SS_RIGHT,
             blockWidth, offsetY + blockHeight*i - (i/3),
