@@ -6,6 +6,7 @@ int main(int argc, char* args) {
     HINSTANCE hInst = GetModuleHandle(NULL);
 
     showWindow1(hInst);
+
     showWindow2(hInst);
     return 0;
 }
