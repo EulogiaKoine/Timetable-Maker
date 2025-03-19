@@ -1,5 +1,5 @@
 # Timetable-Maker
-2025 Clab-ton team No.1 - Schedule Wizard with Pure C-lang
+2025 씨랩톤 1팀 - C언어만 이용한 스케줄 마법사
 
 ### 사용법
 0. 프로그램 실행 파일명
