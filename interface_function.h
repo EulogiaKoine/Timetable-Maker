@@ -6,6 +6,8 @@
 #endif
 #include <stdio.h>
 #include <windows.h>
+#include <winuser.h>
+#include <wchar.h>
 
 // 매크로 & 변수 선언 
 #define MAX_ROWS 10       // 최대 행 수
@@ -21,6 +23,7 @@ HWND hButtonExit;             // "종료 / 시간표생성" 버튼 핸들
 extern int rowCount;         // 현재 추가된 행 수
 
 // 강의 정보를 저장하는 구조체
+//이곳에 정보가 저장되어 정규님에게 전달됨
 typedef struct {
     wchar_t name[100];      // 강의명
     wchar_t day[10];        // 요일
@@ -28,7 +31,8 @@ typedef struct {
     wchar_t endTime[10];    // 끝시간
 } Course;
 
-Course courseData[MAX_ROWS]; // 입력된 강의 데이터를 저장할 배열
+Course courseData[MAX_ROWS]; // 입력된 강의 데이터를 저장할 배열 
+//이 구조체에 입력받은 값이 저장됨!!
 
 // 함수 선언
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM); // 창 프로시저
@@ -38,3 +42,4 @@ void SaveData();                                     // 데이터 저장
 void RemoveRow(int, HWND);                           // 행 삭제
 void UpdateRowPositions();                           // 행 재배치
 void Struct_Saved_Data();							 // 구조체에 데이터 저장
+void LoadData(HWND);

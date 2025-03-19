@@ -1,4 +1,5 @@
 #include "interface_function.h"
+#include "windowStyler.h"
 
 int rowCount = 0;         // 현재 추가된 행 수
 
@@ -45,7 +46,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
             10, 320, 50, 30, hWnd, (HMENU)BTN_SAVE, (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE), NULL);
         // "시간표 생성" 버튼 생성 -> 윈도우창 종료역할도 함
         hButtonExit = CreateWindowW(L"BUTTON", L"시간표 생성", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
-            180, 320, 100, 30, hWnd, (HMENU)BTN_EXIT, (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE), NULL);
+            350, 320, 100, 30, hWnd, (HMENU)BTN_EXIT, (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE), NULL);
+        LoadData(hWnd);
         break;
 
     case WM_COMMAND: // 버튼 클릭 등 명령 처리
@@ -55,6 +57,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
         else if (LOWORD(wParam) == BTN_SAVE) { // "저장" 버튼 클릭
             SaveData(); // 데이터 저장
             Struct_Saved_Data(); //데이터 저장
+            MessageBoxW(NULL, L"저장되었습니다!", L"알림", MB_OK);
         }
         else if (LOWORD(wParam) >= BTN_REMOVE && LOWORD(wParam) < BTN_REMOVE + MAX_ROWS) { // "제거" 버튼 클릭    /   1행 버튼 ~ 10행 버튼의 ID감지식
             int index = LOWORD(wParam) - BTN_REMOVE; // 클릭된 버튼ID - 기본ID200
@@ -63,7 +66,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
         else if (LOWORD(wParam) == BTN_EXIT) {  // 🔹 시간표생성 버튼 클릭
             SaveData(); // 데이터 저장
             Struct_Saved_Data(); //데이터 저장
-            PostQuitMessage(0);  // 윈도우 종료
+            //PostQuitMessage(0);  // 윈도우 종료
+            DestroyWindow(hWnd);
         }
         break;
 
@@ -152,37 +156,27 @@ void UpdateRowPositions() {
 
 // 데이터 저장 함수
 void SaveData() {
-    // save.txt 파일을 쓰기 모드로 열기
-    FILE* file = fopen("save.txt", "w");
-    if (file == NULL) {
-        MessageBoxW(NULL, L"파일을 열 수 없습니다.", L"오류", MB_ICONERROR);
-        return;
-    }
+    FILE* file;
+    _wfopen_s(&file, L"save.txt", L"w, ccs=UTF-8"); // UTF-8 파일로 저장
+    if (file == NULL) return;
 
-    // 모든 행의 데이터를 파일에 저장
     for (int i = 0; i < rowCount; i++) {
-        wchar_t wName[100], wDay[10], wStartTime[10], wEndTime[10]; //유니코드 형식 char
+        wchar_t wName[100], wDay[10], wStartTime[10], wEndTime[10];
+
+        // 각 입력 필드의 텍스트 가져오기
         GetWindowTextW(hEdit[i][0], wName, 100);
         GetWindowTextW(hEdit[i][1], wDay, 10);
         GetWindowTextW(hEdit[i][2], wStartTime, 10);
         GetWindowTextW(hEdit[i][3], wEndTime, 10);
 
-        // 유니코드 문자열을 멀티바이트 문자열로 변환
-        char name[100], day[10], startTime[10], endTime[10];
-        WideCharToMultiByte(CP_ACP, 0, wName, -1, name, sizeof(name), NULL, NULL);
-        WideCharToMultiByte(CP_ACP, 0, wDay, -1, day, sizeof(day), NULL, NULL);
-        WideCharToMultiByte(CP_ACP, 0, wStartTime, -1, startTime, sizeof(startTime), NULL, NULL);
-        WideCharToMultiByte(CP_ACP, 0, wEndTime, -1, endTime, sizeof(endTime), NULL, NULL);
-
-        // 파일에 형식에 맞게 쓰기
-        fprintf(file, "강의명: %s, 요일: %s, 시작시간: %s, 끝시간: %s\n", name, day, startTime, endTime);
+        // "강의명:", "요일:" 같은 레이블 없이 순수 데이터만 저장
+        fwprintf(file, L"%s %s %s %s\n", wName, wDay, wStartTime, wEndTime);
     }
 
-    // 파일 닫기
     fclose(file);
-
-    MessageBoxW(NULL, L"데이터가 save.txt 파일에 저장되었습니다.", L"알림", MB_OK);
 }
+
+
 
 // 데이터 저장 함수
 void Struct_Saved_Data() {
@@ -195,24 +189,34 @@ void Struct_Saved_Data() {
     }
 }
 
-/*
-WinMain 함수:
+//save.txt파일에서 데이터를 불러들어와 입력필드에 적용하는 함수
+void LoadData(HWND hWnd) {
+    FILE* file;
+    _wfopen_s(&file, L"save.txt", L"r, ccs=UTF-8"); // UTF-8 파일 읽기
+    if (file == NULL) return; // 파일이 없으면 종료
 
-프로그램시작
-윈도우 클래스를 등록하고, 윈도우를 생성한 후 메시지 루프를 실행
+    wchar_t wName[100], wDay[10], wStartTime[10], wEndTime[10];
+    rowCount = 0; // rowCount 초기화
 
-WndProc 함수:
+    while (fwscanf(file, L"%99s %9s %9s %9s", wName, wDay, wStartTime, wEndTime) == 4) {
+        if (rowCount >= MAX_ROWS) break; // 최대 행 수 초과 방지
+        AddRow(hWnd); // 새 행 추가
 
-윈도우 메시지를 처리하는 창 프로시저
-WM_CREATE: 윈도우 생성 시 "추가" 및 "저장" 버튼을 생성
-WM_COMMAND: 버튼 클릭 이벤트를 처리
-WM_DESTROY: 윈도우 종료 시 메시지 루프를 종료
+        // 읽은 데이터를 입력 필드에 넣기
+        SetWindowTextW(hEdit[rowCount - 1][0], wName);
+        SetWindowTextW(hEdit[rowCount - 1][1], wDay);
+        SetWindowTextW(hEdit[rowCount - 1][2], wStartTime);
+        SetWindowTextW(hEdit[rowCount - 1][3], wEndTime);
+    }
 
-AddRow 함수:
+    fclose(file);
+}
 
-새로운 행을 추가하는 함수
-최대 행 수를 초과하면 경고 메시지를 표시
-입력 필드 생성에 실패하면 에러 메시지를 표시
 
-SaveData 함수:
-*/
+
+
+
+//txt파일에 형식에 맞게 저장된것도 있고
+//courseData[i].name, day, starTime, endTime으로 구조체에도 저장되어있음
+// interface_function.h헤더파일을 include하면 쓸 수 있을듯
+//(=0~9)
