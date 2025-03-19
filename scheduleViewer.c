@@ -543,7 +543,7 @@ static void drawGridLines(HDC hdc, RECT rect) {
 
 static void clearStaticChildren(HWND hwnd){
     HWND hChild = NULL;
-    while((hChild = FindWindowExW(viewer.periodnav, hChild, L"STATIC", NULL)) != NULL)
+    while((hChild = FindWindowExW(hwnd, hChild, L"STATIC", NULL)) != NULL)
         DestroyWindow(hChild);
 }
 static void tryClearMain(){
