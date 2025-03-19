@@ -22,7 +22,6 @@ void showWindow1(HINSTANCE hInstance) {
     // 윈도우 표시
     ShowWindow(hWnd, SW_SHOWNORMAL /* 기본 띄우기 */);
     UpdateWindow(hWnd);
-    AddRow(hWnd);
 
     // 메시지 루프
     MSG msg;
@@ -154,26 +153,64 @@ void UpdateRowPositions() {
 }
 
 
-// 데이터 저장 함수
+// 데이터 저장 함수 (바이너리 모드로 저장)
 void SaveData() {
-    FILE* file;
-    _wfopen_s(&file, L"save.txt", L"w, ccs=UTF-8"); // UTF-8 파일로 저장
+    FILE* file = fopen("save.bin", "wb"); // 바이너리 쓰기 모드
     if (file == NULL) return;
 
     for (int i = 0; i < rowCount; i++) {
-        wchar_t wName[100], wDay[10], wStartTime[10], wEndTime[10];
+        // 각 입력 필드의 텍스트를 고정 크기의 버퍼에 저장 (널 포함)
+        wchar_t wName[100] = {0}, wDay[10] = {0}, wStartTime[10] = {0}, wEndTime[10] = {0};
 
-        // 각 입력 필드의 텍스트 가져오기
         GetWindowTextW(hEdit[i][0], wName, 100);
         GetWindowTextW(hEdit[i][1], wDay, 10);
         GetWindowTextW(hEdit[i][2], wStartTime, 10);
         GetWindowTextW(hEdit[i][3], wEndTime, 10);
 
-        // "강의명:", "요일:" 같은 레이블 없이 순수 데이터만 저장
-        fwprintf(file, L"%s %s %s %s\n", wName, wDay, wStartTime, wEndTime);
+        // 각 배열을 그대로 파일에 기록 (바이트 어레이로 저장)
+        fwrite(wName, sizeof(wchar_t), 100, file);
+        fwrite(wDay, sizeof(wchar_t), 10, file);
+        fwrite(wStartTime, sizeof(wchar_t), 10, file);
+        fwrite(wEndTime, sizeof(wchar_t), 10, file);
     }
 
     fclose(file);
+}
+
+// 데이터 불러오기 함수 (바이너리 모드로 읽기)
+void LoadData(HWND hWnd) {
+    FILE* file = fopen("save.bin", "rb"); // 바이너리 읽기 모드
+    if (file == NULL) {
+         // 저장된 파일이 없으면 기본 행 하나 추가 후 종료
+         AddRow(hWnd);
+         return;
+    }
+
+    rowCount = 0; // 기존 행 수 초기화
+    wchar_t wName[100], wDay[10], wStartTime[10], wEndTime[10];
+    int rowsLoaded = 0;
+
+    // 저장된 데이터에서 각 행의 정보를 읽어옴
+    while (rowsLoaded < MAX_ROWS &&
+           fread(wName, sizeof(wchar_t), 100, file) == 100 &&
+           fread(wDay, sizeof(wchar_t), 10, file) == 10 &&
+           fread(wStartTime, sizeof(wchar_t), 10, file) == 10 &&
+           fread(wEndTime, sizeof(wchar_t), 10, file) == 10)
+    {
+        AddRow(hWnd); // 새 행 추가
+        // 읽어온 데이터를 해당 행의 입력 필드에 설정
+        SetWindowTextW(hEdit[rowCount - 1][0], wName);
+        SetWindowTextW(hEdit[rowCount - 1][1], wDay);
+        SetWindowTextW(hEdit[rowCount - 1][2], wStartTime);
+        SetWindowTextW(hEdit[rowCount - 1][3], wEndTime);
+        rowsLoaded++;
+    }
+    fclose(file);
+
+    // 저장된 데이터가 하나도 없으면 기본 행 한 줄 추가
+    if (rowsLoaded == 0) {
+         AddRow(hWnd);
+    }
 }
 
 
@@ -187,29 +224,6 @@ void Struct_Saved_Data() {
         GetWindowTextW(hEdit[i][2], courseData[i].startTime, sizeof(courseData[i].startTime)); // 시작시간 저장
         GetWindowTextW(hEdit[i][3], courseData[i].endTime, sizeof(courseData[i].endTime));     // 끝시간 저장
     }
-}
-
-//save.txt파일에서 데이터를 불러들어와 입력필드에 적용하는 함수
-void LoadData(HWND hWnd) {
-    FILE* file;
-    _wfopen_s(&file, L"save.txt", L"r, ccs=UTF-8"); // UTF-8 파일 읽기
-    if (file == NULL) return; // 파일이 없으면 종료
-
-    wchar_t wName[100], wDay[10], wStartTime[10], wEndTime[10];
-    rowCount = 0; // rowCount 초기화
-
-    while (fwscanf(file, L"%99s %9s %9s %9s", wName, wDay, wStartTime, wEndTime) == 4) {
-        if (rowCount >= MAX_ROWS) break; // 최대 행 수 초과 방지
-        AddRow(hWnd); // 새 행 추가
-
-        // 읽은 데이터를 입력 필드에 넣기
-        SetWindowTextW(hEdit[rowCount - 1][0], wName);
-        SetWindowTextW(hEdit[rowCount - 1][1], wDay);
-        SetWindowTextW(hEdit[rowCount - 1][2], wStartTime);
-        SetWindowTextW(hEdit[rowCount - 1][3], wEndTime);
-    }
-
-    fclose(file);
 }
 
 
